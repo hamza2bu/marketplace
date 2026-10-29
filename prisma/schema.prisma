@@ -41,19 +41,19 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  shop          Shop?
-  addresses     Address[]
-  orders        Order[]
-  reviews       Review[]
-  wishlist      WishlistItem[]
-  cart          Cart?
-  refunds       Refund[]       @relation("RefundInitiator")
-  disputes      Dispute[]      @relation("DisputeOpener")
-  orderEvents   OrderEvent[]
-  auditLogs     AuditLog[]
-  emailLogs     EmailLog[]
+  accounts    Account[]
+  sessions    Session[]
+  shop        Shop?
+  addresses   Address[]
+  orders      Order[]
+  reviews     Review[]
+  wishlist    WishlistItem[]
+  cart        Cart?
+  refunds     Refund[]       @relation("RefundInitiator")
+  disputes    Dispute[]      @relation("DisputeOpener")
+  orderEvents OrderEvent[]
+  auditLogs   AuditLog[]
+  emailLogs   EmailLog[]
 }
 
 // Auth.js adapter tables.
@@ -124,35 +124,35 @@ enum ShopStatus {
 }
 
 model Shop {
-  id                    String     @id @default(cuid())
-  ownerId               String     @unique
-  name                  String
-  slug                  String     @unique
-  description           String?
-  logoUrl               String?
-  bannerUrl             String?
-  status                ShopStatus @default(PENDING)
-  statusReason          String?
-  approvedAt            DateTime?
+  id           String     @id @default(cuid())
+  ownerId      String     @unique
+  name         String
+  slug         String     @unique
+  description  String?
+  logoUrl      String?
+  bannerUrl    String?
+  status       ShopStatus @default(PENDING)
+  statusReason String?
+  approvedAt   DateTime?
 
   // Business details collected during onboarding.
-  legalName             String
-  taxId                 String // Israeli business/VAT number (ח.פ / ע.מ)
-  businessAddress       Json
-  contactEmail          String
-  contactPhone          String
+  legalName       String
+  taxId           String // Israeli business/VAT number (ח.פ / ע.מ)
+  businessAddress Json
+  contactEmail    String
+  contactPhone    String
 
   // Payout account at the payment provider. Bank details live at the
   // provider; we keep only its sub-merchant reference.
-  payoutProvider        String?
-  payoutAccountRef      String?    @unique
-  payoutsEnabled        Boolean    @default(false)
+  payoutProvider   String?
+  payoutAccountRef String? @unique
+  payoutsEnabled   Boolean @default(false)
 
   commissionBpsOverride Int?
-  ratingAvg             Float      @default(0)
-  ratingCount           Int        @default(0)
-  createdAt             DateTime   @default(now())
-  updatedAt             DateTime   @updatedAt
+  ratingAvg             Float    @default(0)
+  ratingCount           Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   owner         User           @relation(fields: [ownerId], references: [id], onDelete: Restrict)
   products      Product[]
@@ -191,6 +191,8 @@ model Brand {
   name     String
   slug     String    @unique
   products Product[]
+
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "Brand_name_trgm_idx")
 }
 
 enum ProductStatus {
@@ -215,13 +217,18 @@ model Product {
   isFeatured     Boolean       @default(false)
 
   // Denormalized for listing, filtering and sorting.
-  minPriceMinor  Int           @default(0)
-  ratingAvg      Float         @default(0)
-  ratingCount    Int           @default(0)
-  salesCount     Int           @default(0)
+  minPriceMinor Int   @default(0)
+  ratingAvg     Float @default(0)
+  ratingCount   Int   @default(0)
+  salesCount    Int   @default(0)
 
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  // Generated column (see migration add_product_search): title weighted A,
+  // description B, using the 'simple' config because Postgres has no Hebrew
+  // or Arabic stemmer. Never written by the app.
+  searchVector Unsupported("tsvector")? @default(dbgenerated("(setweight(to_tsvector('simple'::regconfig, COALESCE(title, ''::text)), 'A'::\"char\") || setweight(to_tsvector('simple'::regconfig, COALESCE(description, ''::text)), 'B'::\"char\"))"))
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   shop      Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
   category  Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
@@ -236,6 +243,9 @@ model Product {
   @@index([shopId])
   @@index([brandId])
   @@index([minPriceMinor])
+  @@index([createdAt])
+  @@index([searchVector], type: Gin)
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "Product_title_trgm_idx")
 }
 
 model ProductVariant {
@@ -377,10 +387,10 @@ model Order {
   shippingAddress Json // snapshot of the Address
 
   paymentProvider String?
-  paymentRef      String?     @unique // provider's transaction id
+  paymentRef      String?   @unique // provider's transaction id
   paidAt          DateTime?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   customer  User       @relation(fields: [customerId], references: [id], onDelete: Restrict)
   subOrders SubOrder[]
@@ -404,11 +414,11 @@ model SubOrder {
   shippedAt       DateTime?
   deliveredAt     DateTime?
 
-  transferStatus  TransferStatus @default(PENDING)
-  transferRef     String? // provider's transfer/split id
-  releaseAt       DateTime? // deliveredAt + return window
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  transferStatus TransferStatus @default(PENDING)
+  transferRef    String? // provider's transfer/split id
+  releaseAt      DateTime? // deliveredAt + return window
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   order          Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   shop           Shop            @relation(fields: [shopId], references: [id], onDelete: Restrict)
@@ -491,15 +501,15 @@ enum RefundStatus {
 }
 
 model Refund {
-  id             String       @id @default(cuid())
-  orderId        String
-  subOrderId     String?
-  amountMinor    Int
-  reason         String
-  status         RefundStatus @default(PENDING)
-  providerRef    String?      @unique
-  initiatedById  String
-  createdAt      DateTime     @default(now())
+  id            String       @id @default(cuid())
+  orderId       String
+  subOrderId    String?
+  amountMinor   Int
+  reason        String
+  status        RefundStatus @default(PENDING)
+  providerRef   String?      @unique
+  initiatedById String
+  createdAt     DateTime     @default(now())
 
   order       Order     @relation(fields: [orderId], references: [id], onDelete: Restrict)
   subOrder    SubOrder? @relation(fields: [subOrderId], references: [id], onDelete: Restrict)

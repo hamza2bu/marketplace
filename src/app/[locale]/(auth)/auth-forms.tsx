@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Field } from "@/components/ui/field";
 import { signInAction, signUpAction, type AuthFormState } from "./actions";
@@ -23,6 +23,12 @@ function SubmitButton({ pending, label }: { pending: boolean; label: string }) {
   );
 }
 
+function useRedirectOnSuccess(state: AuthFormState) {
+  useEffect(() => {
+    if (state.redirectTo) window.location.assign(state.redirectTo);
+  }, [state.redirectTo]);
+}
+
 function FormError({ message }: { message?: string }) {
   if (!message) return null;
   return (
@@ -37,6 +43,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   const locale = useLocale();
   const err = useErrorText();
   const [state, action, pending] = useActionState<AuthFormState, FormData>(signInAction, {});
+  useRedirectOnSuccess(state);
 
   return (
     <form action={action} className="space-y-4" noValidate>
@@ -47,7 +54,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         defaultValue={state.values?.email} error={err(state.fieldErrors?.email)} />
       <Field label={t("password")} name="password" type="password" autoComplete="current-password" required
         error={err(state.fieldErrors?.password)} />
-      <SubmitButton pending={pending} label={t("submitSignIn")} />
+      <SubmitButton pending={pending || Boolean(state.redirectTo)} label={t("submitSignIn")} />
     </form>
   );
 }
@@ -57,6 +64,7 @@ export function SignUpForm() {
   const locale = useLocale();
   const err = useErrorText();
   const [state, action, pending] = useActionState<AuthFormState, FormData>(signUpAction, {});
+  useRedirectOnSuccess(state);
 
   return (
     <form action={action} className="space-y-4" noValidate>
@@ -68,7 +76,7 @@ export function SignUpForm() {
         defaultValue={state.values?.email} error={err(state.fieldErrors?.email)} />
       <Field label={t("password")} name="password" type="password" autoComplete="new-password" required
         hint={t("passwordHint")} error={err(state.fieldErrors?.password)} />
-      <SubmitButton pending={pending} label={t("submitSignUp")} />
+      <SubmitButton pending={pending || Boolean(state.redirectTo)} label={t("submitSignUp")} />
     </form>
   );
 }

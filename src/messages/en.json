@@ -12,14 +12,12 @@
     "signIn": "Sign in",
     "signUp": "Create account",
     "signOut": "Sign out",
-    "language": "Language"
-  },
-  "home": {
-    "heading": "Shop independent stores in one place",
-    "subheading": "Products from {shops} approved shops across {categories} categories.",
+    "language": "Language",
+    "searchPlaceholder": "Search products, brands…",
+    "searchButton": "Search",
     "categories": "Categories",
-    "featured": "Featured products",
-    "comingSoon": "Search, product pages and the cart arrive in the next phase."
+    "deals": "Deals",
+    "menu": "Menu"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -89,6 +87,104 @@
   "forbidden": {
     "title": "No access",
     "body": "Your account doesn't have permission to view this page.",
+    "back": "Back to home"
+  },
+  "home": {
+    "heading": "Shop independent stores in one place",
+    "categories": "Shop by category",
+    "deals": "Today's deals",
+    "featured": "Featured products",
+    "newest": "New arrivals",
+    "viewAll": "View all",
+    "shopNow": "Shop now"
+  },
+  "catalog": {
+    "searchTitle": "Search",
+    "resultsFor": "Results for “{q}”",
+    "allProducts": "All products",
+    "dealsTitle": "Deals",
+    "dealsIntro": "Marked-down products from all our shops.",
+    "count": "{count, plural, =0 {No products} one {# product} other {# products}}",
+    "noResults": "No products match your search.",
+    "noResultsHint": "Try fewer words, check the spelling, or clear some filters.",
+    "filters": "Filters",
+    "filtersCount": "Filters ({count})",
+    "apply": "Apply",
+    "clearAll": "Clear all",
+    "remove": "Remove filter: {label}",
+    "category": "Category",
+    "brand": "Brand",
+    "seller": "Seller",
+    "price": "Price (₪)",
+    "minPrice": "Min",
+    "maxPrice": "Max",
+    "priceRange": "₪{min}–₪{max}",
+    "rating": "Customer rating",
+    "ratingAndUp": "{stars}★ & up",
+    "availability": "Availability",
+    "inStockOnly": "In stock only",
+    "dealsOnly": "Deals only",
+    "sortLabel": "Sort by",
+    "sort": {
+      "relevance": "Best match",
+      "popular": "Most popular",
+      "newest": "Newest",
+      "price-asc": "Price: low to high",
+      "price-desc": "Price: high to low",
+      "rating": "Top rated"
+    },
+    "pageOf": "Page {page} of {pageCount}",
+    "previous": "Previous",
+    "next": "Next",
+    "pagination": "Pagination",
+    "subcategories": "Subcategories"
+  },
+  "product": {
+    "soldBy": "Sold by {shop}",
+    "brand": "Brand",
+    "inStock": "In stock",
+    "lowStock": "Only {count} left",
+    "outOfStock": "Out of stock",
+    "save": "Save {pct}%",
+    "vatIncluded": "Price includes VAT",
+    "addToCart": "Add to cart",
+    "cartSoon": "The cart opens in the next phase.",
+    "chooseOption": "Choose {option}",
+    "unavailable": "{value} — unavailable",
+    "description": "Description",
+    "specs": "Specifications",
+    "sku": "SKU",
+    "seller": "About the seller",
+    "visitShop": "Visit shop",
+    "memberSince": "Selling since {date}",
+    "shopProducts": "{count, plural, one {# product} other {# products}}",
+    "reviews": "Customer reviews",
+    "reviewsCount": "{count, plural, =0 {No reviews} one {# review} other {# reviews}}",
+    "noReviews": "No reviews yet.",
+    "verifiedOnly": "Only customers who bought this product can review it.",
+    "verifiedBuyer": "Verified buyer",
+    "sellerReply": "Reply from the seller",
+    "starsOutOf": "{rating} out of 5 stars",
+    "related": "You may also like",
+    "gallery": "Product images",
+    "showImage": "Show image {n}",
+    "options": {
+      "color": "Color",
+      "size": "Size",
+      "switch": "Switch type"
+    }
+  },
+  "shop": {
+    "products": "Products",
+    "rating": "Shop rating"
+  },
+  "breadcrumbs": {
+    "label": "Breadcrumb",
+    "home": "Home"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you're looking for doesn't exist or was removed.",
     "back": "Back to home"
   }
 }

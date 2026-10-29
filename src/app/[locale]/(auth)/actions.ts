@@ -12,6 +12,9 @@ import { hasLocale } from "next-intl";
 
 export type AuthFormState = {
   error?: string;
+  // Set on success; the form does a full page load there so the header's
+  // client-side session refreshes.
+  redirectTo?: string;
   fieldErrors?: Partial<Record<string, string>>;
   values?: { name?: string; email?: string };
 };
@@ -32,13 +35,12 @@ function fieldErrors(issues: { path: PropertyKey[]; message: string }[]) {
 
 async function signInWithCredentials(email: string, password: string, redirectTo: string) {
   try {
-    await signIn("credentials", { email, password, redirectTo });
+    await signIn("credentials", { email, password, redirect: false });
   } catch (error) {
-    // signIn throws a redirect on success; only Auth.js errors are failures.
     if (error instanceof AuthError) return { error: "invalidCredentials" };
     throw error;
   }
-  return {};
+  return { redirectTo };
 }
 
 export async function signInAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {

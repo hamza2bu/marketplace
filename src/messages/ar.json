@@ -12,14 +12,12 @@
     "signIn": "تسجيل الدخول",
     "signUp": "إنشاء حساب",
     "signOut": "تسجيل الخروج",
-    "language": "اللغة"
-  },
-  "home": {
-    "heading": "تسوّق من متاجر مستقلة في مكان واحد",
-    "subheading": "منتجات من {shops} متاجر معتمدة في {categories} فئات.",
+    "language": "اللغة",
+    "searchPlaceholder": "ابحث عن منتجات وعلامات تجارية…",
+    "searchButton": "بحث",
     "categories": "الفئات",
-    "featured": "منتجات مميزة",
-    "comingSoon": "البحث وصفحات المنتجات وسلة التسوق ستتوفر في المرحلة القادمة."
+    "deals": "عروض",
+    "menu": "القائمة"
   },
   "auth": {
     "signInTitle": "تسجيل الدخول",
@@ -89,6 +87,104 @@
   "forbidden": {
     "title": "لا يوجد وصول",
     "body": "ليس لدى حسابك صلاحية لعرض هذه الصفحة.",
+    "back": "العودة إلى الرئيسية"
+  },
+  "home": {
+    "heading": "تسوّق من متاجر مستقلة في مكان واحد",
+    "categories": "تسوّق حسب الفئة",
+    "deals": "عروض اليوم",
+    "featured": "منتجات مميزة",
+    "newest": "وصل حديثًا",
+    "viewAll": "عرض الكل",
+    "shopNow": "تسوّق الآن"
+  },
+  "catalog": {
+    "searchTitle": "بحث",
+    "resultsFor": "نتائج البحث عن «{q}»",
+    "allProducts": "جميع المنتجات",
+    "dealsTitle": "عروض",
+    "dealsIntro": "منتجات بأسعار مخفّضة من جميع متاجرنا.",
+    "count": "{count, plural, =0 {لا توجد منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}}",
+    "noResults": "لا توجد منتجات تطابق بحثك.",
+    "noResultsHint": "جرّب كلمات أقل، أو تحقق من الإملاء، أو أزل بعض عوامل التصفية.",
+    "filters": "تصفية",
+    "filtersCount": "تصفية ({count})",
+    "apply": "تطبيق",
+    "clearAll": "مسح الكل",
+    "remove": "إزالة عامل التصفية: {label}",
+    "category": "الفئة",
+    "brand": "العلامة التجارية",
+    "seller": "البائع",
+    "price": "السعر (₪)",
+    "minPrice": "من",
+    "maxPrice": "إلى",
+    "priceRange": "₪{min}–₪{max}",
+    "rating": "تقييم الزبائن",
+    "ratingAndUp": "{stars}★ فأكثر",
+    "availability": "التوفر",
+    "inStockOnly": "المتوفر فقط",
+    "dealsOnly": "العروض فقط",
+    "sortLabel": "ترتيب حسب",
+    "sort": {
+      "relevance": "الأكثر صلة",
+      "popular": "الأكثر شيوعًا",
+      "newest": "الأحدث",
+      "price-asc": "السعر: من الأقل إلى الأعلى",
+      "price-desc": "السعر: من الأعلى إلى الأقل",
+      "rating": "الأعلى تقييمًا"
+    },
+    "pageOf": "صفحة {page} من {pageCount}",
+    "previous": "السابق",
+    "next": "التالي",
+    "pagination": "التنقل بين الصفحات",
+    "subcategories": "الفئات الفرعية"
+  },
+  "product": {
+    "soldBy": "يبيعه {shop}",
+    "brand": "العلامة التجارية",
+    "inStock": "متوفر",
+    "lowStock": "بقي {count} فقط",
+    "outOfStock": "نفد من المخزون",
+    "save": "وفّر {pct}%",
+    "vatIncluded": "السعر شامل ضريبة القيمة المضافة",
+    "addToCart": "أضف إلى السلة",
+    "cartSoon": "ستتوفر السلة في المرحلة القادمة.",
+    "chooseOption": "اختر {option}",
+    "unavailable": "{value} — غير متوفر",
+    "description": "الوصف",
+    "specs": "المواصفات",
+    "sku": "رمز المنتج",
+    "seller": "عن البائع",
+    "visitShop": "زيارة المتجر",
+    "memberSince": "يبيع منذ {date}",
+    "shopProducts": "{count, plural, one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}}",
+    "reviews": "آراء الزبائن",
+    "reviewsCount": "{count, plural, =0 {لا توجد تقييمات} one {تقييم واحد} two {تقييمان} few {# تقييمات} many {# تقييمًا} other {# تقييم}}",
+    "noReviews": "لا توجد تقييمات بعد.",
+    "verifiedOnly": "يمكن فقط للزبائن الذين اشتروا هذا المنتج تقييمه.",
+    "verifiedBuyer": "مشترٍ موثّق",
+    "sellerReply": "رد البائع",
+    "starsOutOf": "{rating} من 5 نجوم",
+    "related": "قد يعجبك أيضًا",
+    "gallery": "صور المنتج",
+    "showImage": "عرض الصورة {n}",
+    "options": {
+      "color": "اللون",
+      "size": "المقاس",
+      "switch": "نوع المفتاح"
+    }
+  },
+  "shop": {
+    "products": "المنتجات",
+    "rating": "تقييم المتجر"
+  },
+  "breadcrumbs": {
+    "label": "مسار التنقل",
+    "home": "الرئيسية"
+  },
+  "notFound": {
+    "title": "الصفحة غير موجودة",
+    "body": "الصفحة التي تبحث عنها غير موجودة أو تمت إزالتها.",
     "back": "العودة إلى الرئيسية"
   }
 }

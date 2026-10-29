@@ -15,20 +15,22 @@ async function upsertUser(email: string, name: string, role: Role, passwordHash:
   });
 }
 
+const categoryImage = (slug: string) => `/placeholder/category-${slug}.svg?w=480&h=360`;
+
 async function seedCategories() {
   const ids = new Map<string, string>();
   for (const [i, top] of categories.entries()) {
     const parent = await db.category.upsert({
       where: { slug: top.slug },
-      update: { name: top.name, commissionBps: top.commissionBps ?? null, sortOrder: i },
-      create: { slug: top.slug, name: top.name, commissionBps: top.commissionBps, sortOrder: i },
+      update: { name: top.name, commissionBps: top.commissionBps ?? null, sortOrder: i, imageUrl: categoryImage(top.slug) },
+      create: { slug: top.slug, name: top.name, commissionBps: top.commissionBps, sortOrder: i, imageUrl: categoryImage(top.slug) },
     });
     ids.set(top.slug, parent.id);
     for (const [j, child] of (top.children ?? []).entries()) {
       const row = await db.category.upsert({
         where: { slug: child.slug },
-        update: { name: child.name, parentId: parent.id, sortOrder: j },
-        create: { slug: child.slug, name: child.name, parentId: parent.id, sortOrder: j },
+        update: { name: child.name, parentId: parent.id, sortOrder: j, imageUrl: categoryImage(child.slug) },
+        create: { slug: child.slug, name: child.name, parentId: parent.id, sortOrder: j, imageUrl: categoryImage(child.slug) },
       });
       ids.set(child.slug, row.id);
     }
@@ -74,7 +76,7 @@ async function seedProduct(p: SeedProduct, index: number, shopId: string, catego
   await db.productImage.createMany({
     data: [1, 2, 3].map((n, position) => ({
       productId: product.id,
-      url: `https://picsum.photos/seed/${p.slug}-${n}/800/800`,
+      url: `/placeholder/${p.slug}-${n}.svg`,
       alt: p.title,
       position,
     })),
@@ -133,15 +135,26 @@ async function main() {
     await seedProduct(p, i, shopId, categoryId, brandIds.get(p.brand)!);
   }
 
-  const banner = {
-    imageUrl: "https://picsum.photos/seed/hero-banner/1600/600",
-    title: { he: "מבצעי סוף העונה", ar: "عروض نهاية الموسم", en: "End of season deals" },
-    subtitle: { he: "עד 30% הנחה", ar: "خصم حتى 30%", en: "Up to 30% off" },
-    linkUrl: "/deals",
-  };
-  if (!(await db.banner.findFirst({ where: { placement: "home-hero" } }))) {
-    await db.banner.create({ data: banner });
-  }
+  // Replace the seeded banners so re-running converges on this list.
+  await db.banner.deleteMany({ where: { placement: "home-hero" } });
+  await db.banner.createMany({
+    data: [
+      {
+        imageUrl: "/placeholder/season-deals.svg?w=1600&h=600",
+        title: { he: "מבצעי סוף העונה", ar: "عروض نهاية الموسم", en: "End of season deals" },
+        subtitle: { he: "הנחות על מאות מוצרים מחנויות עצמאיות", ar: "خصومات على مئات المنتجات من متاجر مستقلة", en: "Discounts on hundreds of products from independent shops" },
+        linkUrl: "/deals",
+        sortOrder: 0,
+      },
+      {
+        imageUrl: "/placeholder/new-in-fashion.svg?w=1600&h=600",
+        title: { he: "חדש באופנה", ar: "جديد في الأزياء", en: "New in fashion" },
+        subtitle: { he: "הקולקציה החדשה של Urban Wear", ar: "التشكيلة الجديدة من Urban Wear", en: "The new Urban Wear collection" },
+        linkUrl: "/c/fashion",
+        sortOrder: 1,
+      },
+    ],
+  });
 
   const counts = await Promise.all([db.user.count(), db.shop.count(), db.category.count(), db.product.count(), db.productVariant.count()]);
   console.log(`Seeded: ${counts[0]} users, ${counts[1]} shops, ${counts[2]} categories, ${counts[3]} products, ${counts[4]} variants`);

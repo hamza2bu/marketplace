@@ -12,14 +12,12 @@
     "signIn": "התחברות",
     "signUp": "יצירת חשבון",
     "signOut": "התנתקות",
-    "language": "שפה"
-  },
-  "home": {
-    "heading": "קונים מחנויות עצמאיות במקום אחד",
-    "subheading": "מוצרים מ-{shops} חנויות מאושרות ב-{categories} קטגוריות.",
+    "language": "שפה",
+    "searchPlaceholder": "חיפוש מוצרים, מותגים…",
+    "searchButton": "חיפוש",
     "categories": "קטגוריות",
-    "featured": "מוצרים מומלצים",
-    "comingSoon": "חיפוש, עמודי מוצר ועגלת קניות יגיעו בשלב הבא."
+    "deals": "מבצעים",
+    "menu": "תפריט"
   },
   "auth": {
     "signInTitle": "התחברות",
@@ -89,6 +87,104 @@
   "forbidden": {
     "title": "אין גישה",
     "body": "לחשבון שלכם אין הרשאה לצפות בעמוד הזה.",
+    "back": "חזרה לדף הבית"
+  },
+  "home": {
+    "heading": "קונים מחנויות עצמאיות במקום אחד",
+    "categories": "קנייה לפי קטגוריה",
+    "deals": "המבצעים של היום",
+    "featured": "מוצרים מומלצים",
+    "newest": "חדש באתר",
+    "viewAll": "לכל המוצרים",
+    "shopNow": "לקנייה"
+  },
+  "catalog": {
+    "searchTitle": "חיפוש",
+    "resultsFor": "תוצאות עבור „{q}”",
+    "allProducts": "כל המוצרים",
+    "dealsTitle": "מבצעים",
+    "dealsIntro": "מוצרים במחיר מוזל מכל החנויות שלנו.",
+    "count": "{count, plural, =0 {אין מוצרים} one {מוצר אחד} other {# מוצרים}}",
+    "noResults": "לא נמצאו מוצרים שמתאימים לחיפוש.",
+    "noResultsHint": "נסו פחות מילים, בדקו את האיות או הסירו חלק מהמסננים.",
+    "filters": "סינון",
+    "filtersCount": "סינון ({count})",
+    "apply": "החלה",
+    "clearAll": "ניקוי הכל",
+    "remove": "הסרת מסנן: {label}",
+    "category": "קטגוריה",
+    "brand": "מותג",
+    "seller": "מוכר",
+    "price": "מחיר (₪)",
+    "minPrice": "מ-",
+    "maxPrice": "עד",
+    "priceRange": "₪{min}–₪{max}",
+    "rating": "דירוג לקוחות",
+    "ratingAndUp": "{stars}★ ומעלה",
+    "availability": "זמינות",
+    "inStockOnly": "במלאי בלבד",
+    "dealsOnly": "מבצעים בלבד",
+    "sortLabel": "מיון לפי",
+    "sort": {
+      "relevance": "הכי רלוונטי",
+      "popular": "הכי פופולרי",
+      "newest": "החדשים ביותר",
+      "price-asc": "מחיר: מהנמוך לגבוה",
+      "price-desc": "מחיר: מהגבוה לנמוך",
+      "rating": "הדירוג הגבוה ביותר"
+    },
+    "pageOf": "עמוד {page} מתוך {pageCount}",
+    "previous": "הקודם",
+    "next": "הבא",
+    "pagination": "ניווט בין עמודים",
+    "subcategories": "תת-קטגוריות"
+  },
+  "product": {
+    "soldBy": "נמכר על ידי {shop}",
+    "brand": "מותג",
+    "inStock": "במלאי",
+    "lowStock": "נשארו רק {count}",
+    "outOfStock": "אזל מהמלאי",
+    "save": "חיסכון של {pct}%",
+    "vatIncluded": "המחיר כולל מע\"מ",
+    "addToCart": "הוספה לעגלה",
+    "cartSoon": "העגלה תיפתח בשלב הבא.",
+    "chooseOption": "בחרו {option}",
+    "unavailable": "{value} — לא זמין",
+    "description": "תיאור",
+    "specs": "מפרט",
+    "sku": "מק\"ט",
+    "seller": "על המוכר",
+    "visitShop": "למעבר לחנות",
+    "memberSince": "מוכר מאז {date}",
+    "shopProducts": "{count, plural, one {מוצר אחד} other {# מוצרים}}",
+    "reviews": "ביקורות לקוחות",
+    "reviewsCount": "{count, plural, =0 {אין ביקורות} one {ביקורת אחת} other {# ביקורות}}",
+    "noReviews": "עדיין אין ביקורות.",
+    "verifiedOnly": "רק לקוחות שקנו את המוצר יכולים לכתוב ביקורת.",
+    "verifiedBuyer": "קנייה מאומתת",
+    "sellerReply": "תגובת המוכר",
+    "starsOutOf": "{rating} מתוך 5 כוכבים",
+    "related": "אולי יעניין אותך גם",
+    "gallery": "תמונות המוצר",
+    "showImage": "הצגת תמונה {n}",
+    "options": {
+      "color": "צבע",
+      "size": "מידה",
+      "switch": "סוג מתג"
+    }
+  },
+  "shop": {
+    "products": "מוצרים",
+    "rating": "דירוג החנות"
+  },
+  "breadcrumbs": {
+    "label": "פירורי לחם",
+    "home": "דף הבית"
+  },
+  "notFound": {
+    "title": "הדף לא נמצא",
+    "body": "הדף שחיפשתם לא קיים או שהוסר.",
     "back": "חזרה לדף הבית"
   }
 }

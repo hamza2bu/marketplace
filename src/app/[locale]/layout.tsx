@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { SessionProvider } from "next-auth/react";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { directionOf, routing } from "@/i18n/routing";
 import { SiteHeader } from "@/components/layout/site-header";
+import { SITE_URL } from "@/lib/site";
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -14,6 +16,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
   return {
+    metadataBase: new URL(SITE_URL),
     title: { default: t("title"), template: `%s · ${t("title")}` },
     description: t("description"),
     alternates: {
@@ -31,8 +34,10 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     <html lang={locale} dir={directionOf(locale)}>
       <body className="min-h-dvh antialiased">
         <NextIntlClientProvider>
-          <SiteHeader locale={locale} />
-          <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-10">{children}</main>
+          <SessionProvider>
+            <SiteHeader locale={locale} />
+            <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">{children}</main>
+          </SessionProvider>
         </NextIntlClientProvider>
       </body>
     </html>

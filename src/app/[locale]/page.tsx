@@ -1,58 +1,98 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { db } from "@/server/db";
+import { Link } from "@/i18n/navigation";
+import { ProductGrid } from "@/components/catalog/product-card";
+import { ProductImage } from "@/components/catalog/product-image";
+import { childrenOf } from "@/lib/category-tree";
 import { localized } from "@/lib/i18n-text";
-import { formatMoney } from "@/lib/money";
+import { localeAlternates } from "@/lib/seo";
+import { getCategories, getHomeData, type ProductCardData } from "@/server/catalog";
 
-// Placeholder home page for Phase 1: proves the seed data and i18n work.
-// The real storefront (banners, deals, search) is built in Phase 2.
+// Static page, rebuilt in the background at most every 5 minutes.
+export const revalidate = 300;
+
+export async function generateMetadata({ params }: PageProps<"/[locale]">): Promise<Metadata> {
+  const { locale } = await params;
+  return { alternates: localeAlternates(locale, "") };
+}
+
+function Shelf({ title, href, viewAll, products, locale }: { title: string; href: string; viewAll: string; products: ProductCardData[]; locale: string }) {
+  if (products.length === 0) return null;
+  return (
+    <section className="space-y-4">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-xl font-semibold sm:text-2xl">{title}</h2>
+        <Link href={href} className="text-sm font-medium text-brand">
+          {viewAll}
+        </Link>
+      </div>
+      <ProductGrid products={products} locale={locale} />
+    </section>
+  );
+}
 
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("home");
-
-  const [categories, products, shopCount] = await Promise.all([
-    db.category.findMany({ where: { parentId: null, isActive: true }, orderBy: { sortOrder: "asc" } }),
-    db.product.findMany({
-      where: { status: "ACTIVE", isFeatured: true, shop: { status: "APPROVED" } },
-      include: { shop: { select: { name: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-    }),
-    db.shop.count({ where: { status: "APPROVED" } }),
+  const [t, categories, { banners, deals, featured, newest }] = await Promise.all([
+    getTranslations("home"),
+    getCategories(),
+    getHomeData(),
   ]);
+  const topCategories = childrenOf(categories, null);
+  const [hero, ...moreBanners] = banners;
 
   return (
-    <div className="space-y-10">
-      <section className="space-y-2">
-        <h1 className="text-3xl font-bold sm:text-4xl">{t("heading")}</h1>
-        <p className="text-muted">{t("subheading", { shops: shopCount, categories: categories.length })}</p>
-        <p className="text-sm text-muted">{t("comingSoon")}</p>
-      </section>
+    <div className="space-y-12">
+      <h1 className="sr-only">{t("heading")}</h1>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-semibold">{t("categories")}</h2>
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {categories.map((c) => (
-            <li key={c.id} className="rounded-lg border border-border bg-surface p-4 text-center font-medium">
-              {localized(c.name, locale)}
-            </li>
+      {hero && (
+        <section className="grid gap-3 md:grid-cols-[2fr_1fr]">
+          {[hero, ...moreBanners.slice(0, 1)].map((banner, i) => (
+            <Link
+              key={banner.id}
+              href={banner.linkUrl}
+              className="group relative flex min-h-44 items-end overflow-hidden rounded-xl bg-surface p-5 sm:min-h-64 sm:p-8"
+            >
+              <ProductImage
+                src={banner.imageUrl}
+                alt=""
+                fill
+                priority={i === 0}
+                sizes={i === 0 ? "(min-width: 768px) 66vw, 100vw" : "(min-width: 768px) 33vw, 100vw"}
+                className="object-cover transition-transform group-hover:scale-[1.02]"
+              />
+              <div className="relative max-w-md rounded-lg bg-background/85 p-4 backdrop-blur">
+                <p className={`font-bold ${i === 0 ? "text-2xl sm:text-3xl" : "text-xl"}`}>{localized(banner.title, locale)}</p>
+                {banner.subtitle ? <p className="mt-1 text-sm text-muted">{localized(banner.subtitle, locale)}</p> : null}
+                <span className="mt-3 inline-block text-sm font-semibold text-brand">{t("shopNow")} →</span>
+              </div>
+            </Link>
           ))}
-        </ul>
-      </section>
+        </section>
+      )}
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-semibold">{t("featured")}</h2>
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold sm:text-2xl">{t("categories")}</h2>
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {products.map((p) => (
-            <li key={p.id} className="rounded-lg border border-border p-3">
-              <p className="line-clamp-2 font-medium">{p.title}</p>
-              <p className="text-sm text-muted">{p.shop.name}</p>
-              <p className="mt-1 font-semibold">{formatMoney(p.minPriceMinor, locale)}</p>
+          {topCategories.map((c) => (
+            <li key={c.id}>
+              <Link href={`/c/${c.slug}`} className="group block overflow-hidden rounded-lg border border-border">
+                <div className="relative aspect-[4/3] bg-surface">
+                  {c.imageUrl && (
+                    <ProductImage src={c.imageUrl} alt="" fill sizes="(min-width: 640px) 25vw, 50vw" className="object-cover" />
+                  )}
+                </div>
+                <p className="p-3 text-center font-medium group-hover:text-brand">{localized(c.name, locale)}</p>
+              </Link>
             </li>
           ))}
         </ul>
       </section>
+
+      <Shelf title={t("deals")} href="/deals" viewAll={t("viewAll")} products={deals} locale={locale} />
+      <Shelf title={t("featured")} href="/search" viewAll={t("viewAll")} products={featured} locale={locale} />
+      <Shelf title={t("newest")} href="/search?sort=newest" viewAll={t("viewAll")} products={newest} locale={locale} />
     </div>
   );
 }
