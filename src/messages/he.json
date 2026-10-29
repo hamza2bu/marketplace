@@ -1,0 +1,94 @@
+{
+  "meta": {
+    "title": "שוק — קונים מחנויות עצמאיות",
+    "description": "מרקטפלייס של חנויות עצמאיות. עגלה אחת, תשלום אחד."
+  },
+  "nav": {
+    "brand": "שוק",
+    "home": "דף הבית",
+    "account": "החשבון שלי",
+    "seller": "לוח בקרה למוכר",
+    "admin": "ניהול",
+    "signIn": "התחברות",
+    "signUp": "יצירת חשבון",
+    "signOut": "התנתקות",
+    "language": "שפה"
+  },
+  "home": {
+    "heading": "קונים מחנויות עצמאיות במקום אחד",
+    "subheading": "מוצרים מ-{shops} חנויות מאושרות ב-{categories} קטגוריות.",
+    "categories": "קטגוריות",
+    "featured": "מוצרים מומלצים",
+    "comingSoon": "חיפוש, עמודי מוצר ועגלת קניות יגיעו בשלב הבא."
+  },
+  "auth": {
+    "signInTitle": "התחברות",
+    "signUpTitle": "יצירת חשבון",
+    "name": "שם מלא",
+    "email": "אימייל",
+    "password": "סיסמה",
+    "passwordHint": "לפחות 8 תווים, כולל אות ומספר.",
+    "submitSignIn": "התחברות",
+    "submitSignUp": "יצירת חשבון",
+    "noAccount": "חדשים כאן?",
+    "haveAccount": "כבר יש לכם חשבון?",
+    "pending": "רק רגע…"
+  },
+  "errors": {
+    "required": "שדה חובה.",
+    "invalidEmail": "יש להזין כתובת אימייל תקינה.",
+    "passwordTooShort": "הסיסמה צריכה להכיל לפחות 8 תווים.",
+    "passwordTooLong": "הסיסמה ארוכה מדי.",
+    "passwordNeedsLetter": "הסיסמה צריכה להכיל אות.",
+    "passwordNeedsNumber": "הסיסמה צריכה להכיל מספר.",
+    "nameTooShort": "השם צריך להכיל לפחות 2 תווים.",
+    "invalidCredentials": "האימייל או הסיסמה שגויים.",
+    "emailTaken": "כבר קיים חשבון עם האימייל הזה.",
+    "rateLimited": "יותר מדי ניסיונות. נסו שוב בעוד כמה דקות.",
+    "generic": "משהו השתבש. נסו שוב."
+  },
+  "account": {
+    "title": "החשבון שלי",
+    "greeting": "שלום, {name}",
+    "role": "סוג חשבון",
+    "email": "אימייל",
+    "orders": "הזמנות",
+    "addresses": "כתובות",
+    "wishlist": "רשימת משאלות",
+    "soon": "יגיע בשלב מאוחר יותר"
+  },
+  "roles": {
+    "CUSTOMER": "לקוח",
+    "SELLER": "מוכר",
+    "ADMIN": "מנהל מערכת"
+  },
+  "seller": {
+    "title": "לוח בקרה למוכר",
+    "shop": "חנות",
+    "status": "סטטוס",
+    "pendingNotice": "החנות שלכם ממתינה לאישור מנהל. אפשר להכין מוצרים, אבל הם לא יוצגו עד לאישור.",
+    "suspendedNotice": "החנות שלכם מושעית. פנו לתמיכה לפרטים.",
+    "products": "מוצרים",
+    "orders": "הזמנות"
+  },
+  "shopStatus": {
+    "PENDING": "ממתינה לאישור",
+    "APPROVED": "מאושרת",
+    "SUSPENDED": "מושעית",
+    "REMOVED": "הוסרה"
+  },
+  "admin": {
+    "title": "ניהול",
+    "users": "משתמשים",
+    "shops": "חנויות",
+    "pendingShops": "חנויות הממתינות לאישור",
+    "products": "מוצרים",
+    "orders": "הזמנות",
+    "commission": "עמלה כללית"
+  },
+  "forbidden": {
+    "title": "אין גישה",
+    "body": "לחשבון שלכם אין הרשאה לצפות בעמוד הזה.",
+    "back": "חזרה לדף הבית"
+  }
+}
