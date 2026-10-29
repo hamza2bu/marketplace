@@ -8,6 +8,7 @@ import type { Locale } from "@/i18n/routing";
 import { LocaleSwitcher } from "./locale-switcher";
 import { SearchBox, SearchBoxFallback } from "./search-box";
 import { UserMenu } from "./user-menu";
+import { CartLinkWithLabels } from "./cart-link-labels";
 
 // No session read here: the header stays static so catalog pages can be
 // cached. The signed-in part is the client-side <UserMenu>.
@@ -36,10 +37,12 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
               account: t("account"),
               seller: t("seller"),
               admin: t("admin"),
+              orders: t("orders"),
               menu: t("menu"),
             }}
           />
           <LocaleSwitcher label={t("language")} />
+          <CartLinkWithLabels />
         </nav>
       </div>
       <nav aria-label={t("categories")} className="border-t border-border">

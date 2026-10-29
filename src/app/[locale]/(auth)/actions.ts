@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
 import { db } from "@/server/db";
+import { mergeGuestCart } from "@/server/cart";
 import { limitAuthAttempt } from "@/server/rate-limit";
 import { signInSchema, signUpSchema } from "@/lib/validation/auth";
 import { safeCallbackPath } from "@/lib/safe-redirect";
@@ -40,6 +41,9 @@ async function signInWithCredentials(email: string, password: string, redirectTo
     if (error instanceof AuthError) return { error: "invalidCredentials" };
     throw error;
   }
+  // Keep what they put in the cart before signing in.
+  const user = await db.user.findUnique({ where: { email }, select: { id: true } });
+  if (user) await mergeGuestCart(user.id);
   return { redirectTo };
 }
 

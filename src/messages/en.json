@@ -17,7 +17,10 @@
     "searchButton": "Search",
     "categories": "Categories",
     "deals": "Deals",
-    "menu": "Menu"
+    "menu": "Menu",
+    "cart": "Cart",
+    "cartCount": "Cart, {count, plural, =0 {empty} one {# item} other {# items}}",
+    "orders": "My orders"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -43,7 +46,9 @@
     "invalidCredentials": "Email or password is incorrect.",
     "emailTaken": "An account with this email already exists.",
     "rateLimited": "Too many attempts. Try again in a few minutes.",
-    "generic": "Something went wrong. Please try again."
+    "generic": "Something went wrong. Please try again.",
+    "invalidPhone": "Enter a valid Israeli phone number.",
+    "invalidPostalCode": "Postal code must be 7 digits."
   },
   "account": {
     "title": "My account",
@@ -53,7 +58,8 @@
     "orders": "Orders",
     "addresses": "Addresses",
     "wishlist": "Wishlist",
-    "soon": "Coming in a later phase"
+    "soon": "Coming in a later phase",
+    "manage": "Manage"
   },
   "roles": {
     "CUSTOMER": "Customer",
@@ -148,7 +154,6 @@
     "save": "Save {pct}%",
     "vatIncluded": "Price includes VAT",
     "addToCart": "Add to cart",
-    "cartSoon": "The cart opens in the next phase.",
     "chooseOption": "Choose {option}",
     "unavailable": "{value} — unavailable",
     "description": "Description",
@@ -172,6 +177,17 @@
       "color": "Color",
       "size": "Size",
       "switch": "Switch type"
+    },
+    "adding": "Adding…",
+    "added": "Added to your cart.",
+    "viewCart": "View cart",
+    "quantity": "Quantity",
+    "addError": {
+      "out_of_stock": "Sorry, this is out of stock.",
+      "unavailable": "This product is no longer available.",
+      "not_found": "This product is no longer available.",
+      "invalid_quantity": "Choose a quantity between 1 and 20.",
+      "rate_limited": "Too many requests. Try again in a moment."
     }
   },
   "shop": {
@@ -186,5 +202,138 @@
     "title": "Page not found",
     "body": "The page you're looking for doesn't exist or was removed.",
     "back": "Back to home"
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty.",
+    "continueShopping": "Continue shopping",
+    "soldBy": "Sold and shipped by {shop}",
+    "remove": "Remove",
+    "quantityFor": "Quantity for {title}",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "free": "Free",
+    "freeShippingHint": "Free shipping from this shop on orders over {amount}.",
+    "total": "Total",
+    "vatIncluded": "Includes VAT of {amount}",
+    "checkout": "Proceed to checkout",
+    "fixIssues": "Some items need your attention before checkout.",
+    "oneCheckout": "Items from several shops, one payment. Each shop ships separately.",
+    "issue": {
+      "unavailable": "No longer available — please remove it.",
+      "out_of_stock": "Out of stock — please remove it.",
+      "insufficient_stock": "Only {stock} left — please lower the quantity."
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shippingAddress": "Shipping address",
+    "addAddress": "Add a new address",
+    "saveAddress": "Save address",
+    "noAddresses": "Add an address to continue.",
+    "review": "Review your order",
+    "shipment": "Shipment {n} of {count} · {shop}",
+    "placeOrder": "Place order and pay {amount}",
+    "placing": "Placing your order…",
+    "secureNote": "You'll pay on our payment provider's secure page. We never see or store your card details.",
+    "holdNote": "Items are reserved for {minutes} minutes while you pay.",
+    "error": {
+      "empty_cart": "Your cart is empty.",
+      "cart_changed": "Your cart changed. Please review it and try again.",
+      "address_not_found": "Choose a shipping address.",
+      "out_of_stock": "Some items just sold out. Please review your cart.",
+      "already_placed": "This order was already placed.",
+      "payment_unavailable": "Payments are unavailable right now. Nothing was charged; please try again shortly.",
+      "rate_limited": "Too many attempts. Try again in a minute."
+    },
+    "completeTitle": "Thank you for your order!",
+    "completeBody": "Order {number} is confirmed. We've sent the details to {email}.",
+    "pendingTitle": "Waiting for payment confirmation…",
+    "pendingBody": "This usually takes a few seconds. This page will update by itself.",
+    "failedTitle": "Payment didn't go through",
+    "failedBody": "Order {number} was cancelled and you were not charged. Your cart is unchanged.",
+    "backToCart": "Back to cart",
+    "viewOrder": "View order"
+  },
+  "pay": {
+    "title": "Test payment",
+    "banner": "Test mode — no real money moves. This page stands in for the payment provider's secure page.",
+    "order": "Order {number}",
+    "amount": "Amount to pay",
+    "approve": "Approve payment",
+    "decline": "Decline payment",
+    "notPending": "This payment is no longer waiting."
+  },
+  "orders": {
+    "title": "My orders",
+    "empty": "You haven't placed any orders yet.",
+    "number": "Order {number}",
+    "placedOn": "Placed on {date}",
+    "total": "Total",
+    "details": "Details",
+    "shipTo": "Shipping to",
+    "payment": "Payment",
+    "paidOn": "Paid on {date}",
+    "itemsSubtotal": "Items",
+    "refunded": "Refunded",
+    "shipment": "From {shop}",
+    "tracking": "Tracking: {carrier} {number}",
+    "timeline": "Order progress",
+    "cancelShipment": "Cancel this shipment",
+    "cancelConfirm": "Cancel and get a full refund for this shipment?",
+    "cancelPending": "Cancel order",
+    "payNow": "Complete payment",
+    "requestReturn": "Request a return",
+    "returnReason": "Why are you returning it?",
+    "submitReturn": "Send return request",
+    "returnWindow": "You can return items until {date}.",
+    "returnStatus": "Return: {status}",
+    "actionError": {
+      "not_found": "We couldn't find that order.",
+      "not_allowed": "This can no longer be done for this order.",
+      "refund_failed": "The refund couldn't be processed. Please try again or contact support.",
+      "invalid": "Please tell us the reason (at least 5 characters)."
+    }
+  },
+  "orderStatus": {
+    "PENDING_PAYMENT": "Awaiting payment",
+    "PAID": "Paid",
+    "PARTIALLY_FULFILLED": "Partly shipped",
+    "COMPLETED": "Delivered",
+    "CANCELLED": "Cancelled",
+    "REFUNDED": "Refunded",
+    "PARTIALLY_REFUNDED": "Partly refunded"
+  },
+  "subOrderStatus": {
+    "PENDING": "Order placed",
+    "PAID": "Payment confirmed",
+    "PROCESSING": "Being prepared",
+    "SHIPPED": "Shipped",
+    "DELIVERED": "Delivered",
+    "CANCELLED": "Cancelled",
+    "RETURN_REQUESTED": "Return requested",
+    "RETURNED": "Returned",
+    "REFUNDED": "Refunded"
+  },
+  "returnStatus": {
+    "REQUESTED": "Requested",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "RECEIVED": "Received by seller",
+    "REFUNDED": "Refunded"
+  },
+  "addresses": {
+    "title": "Addresses",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "line1": "Street and number",
+    "line2": "Apartment, floor (optional)",
+    "city": "City",
+    "postalCode": "Postal code",
+    "isDefault": "Use as my default address",
+    "default": "Default",
+    "delete": "Delete",
+    "empty": "No saved addresses yet.",
+    "saved": "Address saved."
   }
 }

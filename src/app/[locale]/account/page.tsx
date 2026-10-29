@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { requireUser } from "@/server/auth/guards";
 
 export const metadata: Metadata = { robots: { index: false } };
@@ -25,12 +26,23 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/accou
         </div>
       </dl>
       <ul className="grid gap-3 sm:grid-cols-3">
-        {(["orders", "addresses", "wishlist"] as const).map((key) => (
-          <li key={key} className="rounded-lg border border-border bg-surface p-4">
-            <p className="font-medium">{t(key)}</p>
-            <p className="text-sm text-muted">{t("soon")}</p>
+        {(
+          [
+            ["orders", "/account/orders"],
+            ["addresses", "/account/addresses"],
+          ] as const
+        ).map(([key, href]) => (
+          <li key={key}>
+            <Link href={href} className="block rounded-lg border border-border bg-surface p-4 hover:border-foreground">
+              <p className="font-medium">{t(key)}</p>
+              <p className="text-sm text-brand">{t("manage")} →</p>
+            </Link>
           </li>
         ))}
+        <li className="rounded-lg border border-border bg-surface p-4">
+          <p className="font-medium">{t("wishlist")}</p>
+          <p className="text-sm text-muted">{t("soon")}</p>
+        </li>
       </ul>
     </div>
   );

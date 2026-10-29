@@ -370,8 +370,9 @@ enum SubOrderStatus {
 enum TransferStatus {
   PENDING // waiting for payment
   HELD // paid; held until delivery + return window
-  SENT
-  REVERSED
+  RELEASED // in the seller's available balance, waiting for a payout
+  SENT // paid out to the seller
+  REVERSED // refunded before release
 }
 
 model Order {
@@ -389,15 +390,39 @@ model Order {
   paymentProvider String?
   paymentRef      String?   @unique // provider's transaction id
   paidAt          DateTime?
+  // Unpaid orders hold stock until this time, then are cancelled.
+  expiresAt       DateTime?
+  cancelledAt     DateTime?
+  // One order per checkout attempt, so a double-click can't create two.
+  checkoutToken   String?   @unique
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  customer  User       @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  subOrders SubOrder[]
-  refunds   Refund[]
+  customer      User           @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  subOrders     SubOrder[]
+  refunds       Refund[]
+  paymentEvents PaymentEvent[]
 
   @@index([customerId, createdAt])
   @@index([status])
+  @@index([status, expiresAt])
+}
+
+// Every payment webhook we accept, so retries are processed exactly once.
+model PaymentEvent {
+  id          String   @id @default(cuid())
+  provider    String
+  eventId     String
+  type        String
+  orderId     String?
+  amountMinor Int?
+  payload     Json
+  receivedAt  DateTime @default(now())
+
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@unique([provider, eventId])
+  @@index([orderId])
 }
 
 model SubOrder {
@@ -636,12 +661,17 @@ model Banner {
 }
 
 model PlatformSettings {
-  id                  Int      @id @default(1)
-  globalCommissionBps Int      @default(1000)
-  vatBps              Int      @default(1800)
-  currency            String   @default("ILS")
-  returnWindowDays    Int      @default(14)
-  updatedAt           DateTime @updatedAt
+  id                    Int      @id @default(1)
+  globalCommissionBps   Int      @default(1000)
+  vatBps                Int      @default(1800)
+  currency              String   @default("ILS")
+  returnWindowDays      Int      @default(14)
+  // Shipping is charged per seller: flat rate, free above the threshold.
+  shippingFlatMinor     Int      @default(2990)
+  freeShippingOverMinor Int      @default(19900)
+  // Minutes an unpaid order holds stock before it is cancelled.
+  paymentWindowMinutes  Int      @default(30)
+  updatedAt             DateTime @updatedAt
 }
 
 enum ImportStatus {

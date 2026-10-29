@@ -17,7 +17,10 @@
     "searchButton": "חיפוש",
     "categories": "קטגוריות",
     "deals": "מבצעים",
-    "menu": "תפריט"
+    "menu": "תפריט",
+    "cart": "עגלה",
+    "cartCount": "עגלה, {count, plural, =0 {ריקה} one {פריט אחד} other {# פריטים}}",
+    "orders": "ההזמנות שלי"
   },
   "auth": {
     "signInTitle": "התחברות",
@@ -43,7 +46,9 @@
     "invalidCredentials": "האימייל או הסיסמה שגויים.",
     "emailTaken": "כבר קיים חשבון עם האימייל הזה.",
     "rateLimited": "יותר מדי ניסיונות. נסו שוב בעוד כמה דקות.",
-    "generic": "משהו השתבש. נסו שוב."
+    "generic": "משהו השתבש. נסו שוב.",
+    "invalidPhone": "יש להזין מספר טלפון ישראלי תקין.",
+    "invalidPostalCode": "המיקוד צריך להכיל 7 ספרות."
   },
   "account": {
     "title": "החשבון שלי",
@@ -53,7 +58,8 @@
     "orders": "הזמנות",
     "addresses": "כתובות",
     "wishlist": "רשימת משאלות",
-    "soon": "יגיע בשלב מאוחר יותר"
+    "soon": "יגיע בשלב מאוחר יותר",
+    "manage": "ניהול"
   },
   "roles": {
     "CUSTOMER": "לקוח",
@@ -148,7 +154,6 @@
     "save": "חיסכון של {pct}%",
     "vatIncluded": "המחיר כולל מע\"מ",
     "addToCart": "הוספה לעגלה",
-    "cartSoon": "העגלה תיפתח בשלב הבא.",
     "chooseOption": "בחרו {option}",
     "unavailable": "{value} — לא זמין",
     "description": "תיאור",
@@ -172,6 +177,17 @@
       "color": "צבע",
       "size": "מידה",
       "switch": "סוג מתג"
+    },
+    "adding": "מוסיפים…",
+    "added": "נוסף לעגלה.",
+    "viewCart": "לעגלה",
+    "quantity": "כמות",
+    "addError": {
+      "out_of_stock": "מצטערים, המוצר אזל מהמלאי.",
+      "unavailable": "המוצר כבר לא זמין.",
+      "not_found": "המוצר כבר לא זמין.",
+      "invalid_quantity": "בחרו כמות בין 1 ל-20.",
+      "rate_limited": "יותר מדי בקשות. נסו שוב בעוד רגע."
     }
   },
   "shop": {
@@ -186,5 +202,138 @@
     "title": "הדף לא נמצא",
     "body": "הדף שחיפשתם לא קיים או שהוסר.",
     "back": "חזרה לדף הבית"
+  },
+  "cart": {
+    "title": "העגלה שלך",
+    "empty": "העגלה ריקה.",
+    "continueShopping": "להמשך קנייה",
+    "soldBy": "נמכר ונשלח על ידי {shop}",
+    "remove": "הסרה",
+    "quantityFor": "כמות עבור {title}",
+    "subtotal": "סכום ביניים",
+    "shipping": "משלוח",
+    "free": "חינם",
+    "freeShippingHint": "משלוח חינם מחנות זו בהזמנה מעל {amount}.",
+    "total": "סה\"כ",
+    "vatIncluded": "כולל מע\"מ בסך {amount}",
+    "checkout": "המשך לתשלום",
+    "fixIssues": "חלק מהפריטים דורשים את תשומת לבכם לפני התשלום.",
+    "oneCheckout": "פריטים מכמה חנויות, תשלום אחד. כל חנות שולחת בנפרד.",
+    "issue": {
+      "unavailable": "כבר לא זמין — יש להסיר.",
+      "out_of_stock": "אזל מהמלאי — יש להסיר.",
+      "insufficient_stock": "נשארו רק {stock} — יש להקטין את הכמות."
+    }
+  },
+  "checkout": {
+    "title": "תשלום",
+    "shippingAddress": "כתובת למשלוח",
+    "addAddress": "הוספת כתובת חדשה",
+    "saveAddress": "שמירת הכתובת",
+    "noAddresses": "יש להוסיף כתובת כדי להמשיך.",
+    "review": "סיכום ההזמנה",
+    "shipment": "משלוח {n} מתוך {count} · {shop}",
+    "placeOrder": "ביצוע הזמנה ותשלום {amount}",
+    "placing": "מבצעים את ההזמנה…",
+    "secureNote": "התשלום מתבצע בעמוד המאובטח של חברת הסליקה. אנחנו לא רואים ולא שומרים את פרטי הכרטיס.",
+    "holdNote": "הפריטים שמורים עבורכם {minutes} דקות לביצוע התשלום.",
+    "error": {
+      "empty_cart": "העגלה ריקה.",
+      "cart_changed": "העגלה השתנתה. בדקו אותה ונסו שוב.",
+      "address_not_found": "בחרו כתובת למשלוח.",
+      "out_of_stock": "חלק מהפריטים אזלו הרגע. בדקו את העגלה.",
+      "already_placed": "ההזמנה הזו כבר בוצעה.",
+      "payment_unavailable": "התשלום אינו זמין כרגע. לא בוצע חיוב; נסו שוב בעוד מעט.",
+      "rate_limited": "יותר מדי ניסיונות. נסו שוב בעוד דקה."
+    },
+    "completeTitle": "תודה על ההזמנה!",
+    "completeBody": "הזמנה {number} אושרה. שלחנו את הפרטים ל-{email}.",
+    "pendingTitle": "ממתינים לאישור התשלום…",
+    "pendingBody": "זה לוקח בדרך כלל כמה שניות. העמוד יתעדכן מעצמו.",
+    "failedTitle": "התשלום לא עבר",
+    "failedBody": "הזמנה {number} בוטלה ולא בוצע חיוב. העגלה שלכם לא השתנתה.",
+    "backToCart": "חזרה לעגלה",
+    "viewOrder": "לצפייה בהזמנה"
+  },
+  "pay": {
+    "title": "תשלום בדיקה",
+    "banner": "מצב בדיקה — לא מתבצע חיוב אמיתי. העמוד הזה מחליף את עמוד התשלום המאובטח של חברת הסליקה.",
+    "order": "הזמנה {number}",
+    "amount": "סכום לתשלום",
+    "approve": "אישור התשלום",
+    "decline": "דחיית התשלום",
+    "notPending": "התשלום הזה כבר לא ממתין."
+  },
+  "orders": {
+    "title": "ההזמנות שלי",
+    "empty": "עדיין לא ביצעתם הזמנות.",
+    "number": "הזמנה {number}",
+    "placedOn": "בוצעה ב-{date}",
+    "total": "סה\"כ",
+    "details": "פרטים",
+    "shipTo": "כתובת משלוח",
+    "payment": "תשלום",
+    "paidOn": "שולם ב-{date}",
+    "itemsSubtotal": "פריטים",
+    "refunded": "הוחזר",
+    "shipment": "מאת {shop}",
+    "tracking": "מעקב: {carrier} {number}",
+    "timeline": "התקדמות ההזמנה",
+    "cancelShipment": "ביטול המשלוח הזה",
+    "cancelConfirm": "לבטל ולקבל החזר מלא על המשלוח הזה?",
+    "cancelPending": "ביטול ההזמנה",
+    "payNow": "השלמת התשלום",
+    "requestReturn": "בקשת החזרה",
+    "returnReason": "מה סיבת ההחזרה?",
+    "submitReturn": "שליחת בקשת החזרה",
+    "returnWindow": "ניתן להחזיר פריטים עד {date}.",
+    "returnStatus": "החזרה: {status}",
+    "actionError": {
+      "not_found": "לא מצאנו את ההזמנה.",
+      "not_allowed": "כבר לא ניתן לבצע את הפעולה הזו בהזמנה.",
+      "refund_failed": "לא ניתן היה לבצע את ההחזר. נסו שוב או פנו לתמיכה.",
+      "invalid": "נא לציין סיבה (לפחות 5 תווים)."
+    }
+  },
+  "orderStatus": {
+    "PENDING_PAYMENT": "ממתינה לתשלום",
+    "PAID": "שולמה",
+    "PARTIALLY_FULFILLED": "נשלחה חלקית",
+    "COMPLETED": "נמסרה",
+    "CANCELLED": "בוטלה",
+    "REFUNDED": "הוחזרה",
+    "PARTIALLY_REFUNDED": "הוחזרה חלקית"
+  },
+  "subOrderStatus": {
+    "PENDING": "ההזמנה התקבלה",
+    "PAID": "התשלום אושר",
+    "PROCESSING": "בהכנה",
+    "SHIPPED": "נשלח",
+    "DELIVERED": "נמסר",
+    "CANCELLED": "בוטל",
+    "RETURN_REQUESTED": "התבקשה החזרה",
+    "RETURNED": "הוחזר",
+    "REFUNDED": "הכסף הוחזר"
+  },
+  "returnStatus": {
+    "REQUESTED": "התבקשה",
+    "APPROVED": "אושרה",
+    "REJECTED": "נדחתה",
+    "RECEIVED": "התקבלה אצל המוכר",
+    "REFUNDED": "הכסף הוחזר"
+  },
+  "addresses": {
+    "title": "כתובות",
+    "fullName": "שם מלא",
+    "phone": "טלפון",
+    "line1": "רחוב ומספר",
+    "line2": "דירה, קומה (לא חובה)",
+    "city": "עיר",
+    "postalCode": "מיקוד",
+    "isDefault": "כתובת ברירת מחדל",
+    "default": "ברירת מחדל",
+    "delete": "מחיקה",
+    "empty": "אין עדיין כתובות שמורות.",
+    "saved": "הכתובת נשמרה."
   }
 }

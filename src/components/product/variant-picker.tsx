@@ -1,9 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Price } from "@/components/catalog/price";
 import { findVariant, isValueAvailable, optionAxes, type VariantLike } from "@/lib/variant-options";
+import { Link } from "@/i18n/navigation";
+import { addToCartAction } from "@/app/[locale]/cart/actions";
+import { CART_CHANGED_EVENT } from "@/components/layout/cart-link";
 
 const LOW_STOCK = 5;
 
@@ -14,6 +17,24 @@ export function VariantPicker({ variants }: { variants: (VariantLike & { sku: st
   const initial = variants.find((v) => v.stock > 0) ?? variants[0];
   const [selection, setSelection] = useState<Record<string, string>>(initial?.attributes ?? {});
   const variant = findVariant(variants, selection);
+  const [quantity, setQuantity] = useState(1);
+  const [pending, startTransition] = useTransition();
+  const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const maxQuantity = Math.min(20, variant?.stock ?? 0);
+
+  function add() {
+    if (!variant) return;
+    setMessage(null);
+    startTransition(async () => {
+      const result = await addToCartAction(variant.id, Math.min(quantity, maxQuantity));
+      if (result.ok) {
+        setMessage({ kind: "ok", text: t("added") });
+        window.dispatchEvent(new Event(CART_CHANGED_EVENT));
+      } else {
+        setMessage({ kind: "error", text: t(`addError.${result.error}`) });
+      }
+    });
+  }
 
   const axisLabel = (name: string) => (t.has(`options.${name}`) ? t(`options.${name}` as "options.color") : name);
   const discount =
@@ -77,16 +98,41 @@ export function VariantPicker({ variants }: { variants: (VariantLike & { sku: st
         </p>
       )}
 
-      <div>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="text-sm">
+          <span className="mb-1 block font-medium">{t("quantity")}</span>
+          <select
+            value={Math.min(quantity, Math.max(1, maxQuantity))}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            disabled={maxQuantity < 1}
+            className="rounded-md border border-border bg-background px-3 py-2.5"
+          >
+            {Array.from({ length: Math.max(1, maxQuantity) }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           type="button"
-          disabled
-          className="w-full rounded-md bg-brand px-6 py-3 font-semibold text-brand-foreground disabled:opacity-50 sm:w-auto"
+          onClick={add}
+          disabled={!variant || variant.stock <= 0 || pending}
+          className="flex-1 rounded-md bg-brand px-6 py-3 font-semibold text-brand-foreground disabled:opacity-50 sm:flex-none"
         >
-          {t("addToCart")}
+          {pending ? t("adding") : t("addToCart")}
         </button>
-        <p className="mt-1 text-xs text-muted">{t("cartSoon")}</p>
       </div>
+      {message && (
+        <p role="status" className={`text-sm ${message.kind === "ok" ? "text-brand" : "text-danger"}`}>
+          {message.text}{" "}
+          {message.kind === "ok" && (
+            <Link href="/cart" className="font-semibold underline">
+              {t("viewCart")}
+            </Link>
+          )}
+        </p>
+      )}
 
       {variant && (
         <p className="text-xs text-muted">
