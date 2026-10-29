@@ -122,3 +122,44 @@ export function splitRefund(
   const commissionReturnedMinor = commissionAfter - commissionBefore;
   return { refundMinor, commissionReturnedMinor, sellerDebitMinor: refundMinor - commissionReturnedMinor };
 }
+
+// ───────────────────────── Discounts ─────────────────────────
+
+export type DiscountRule = {
+  type: "PERCENT" | "FIXED";
+  value: number; // bps for PERCENT, agorot for FIXED
+  productId: string | null; // null → the whole shop
+  startsAt: Date;
+  endsAt: Date;
+  isActive: boolean;
+};
+
+/** Prices never go below ₪1 through a discount. */
+export const MIN_PRICE_MINOR = 100;
+
+export function isDiscountLive(rule: DiscountRule, now: Date): boolean {
+  return rule.isActive && rule.startsAt <= now && now < rule.endsAt;
+}
+
+export function applyDiscount(priceMinor: number, rule: Pick<DiscountRule, "type" | "value">): number {
+  const cut = rule.type === "PERCENT" ? bpsOf(priceMinor, rule.value) : rule.value;
+  return Math.max(Math.min(priceMinor, MIN_PRICE_MINOR), priceMinor - cut);
+}
+
+/**
+ * The price a customer pays for a variant right now: the best live discount
+ * that applies to it (shop-wide or for this product). The struck-through
+ * "was" price is the higher of the regular price and the compare-at price.
+ */
+export function effectivePrice(
+  variant: { priceMinor: number; compareAtMinor: number | null },
+  productId: string,
+  rules: DiscountRule[],
+  now: Date,
+): { priceMinor: number; compareAtMinor: number | null; discounted: boolean } {
+  const live = rules.filter((r) => (r.productId === null || r.productId === productId) && isDiscountLive(r, now));
+  const best = live.reduce((price, rule) => Math.min(price, applyDiscount(variant.priceMinor, rule)), variant.priceMinor);
+  const discounted = best < variant.priceMinor;
+  const was = Math.max(discounted ? variant.priceMinor : 0, variant.compareAtMinor ?? 0);
+  return { priceMinor: best, compareAtMinor: was > best ? was : null, discounted };
+}

@@ -5,6 +5,8 @@ import type { Prisma } from "@/generated/prisma/client";
 import { PAGE_SIZE, escapeLike, toPrefixTsQuery, type CatalogQuery } from "@/lib/catalog-query";
 import { descendantIds, type CategoryNode } from "@/lib/category-tree";
 import { priceSummary } from "@/lib/variant-options";
+import { effectivePrice, type DiscountRule } from "@/lib/pricing";
+import { discountSelects } from "@/server/discounts";
 
 export const CATALOG_TAG = "catalog";
 export const CATEGORIES_TAG = "categories";
@@ -31,18 +33,23 @@ export async function getCategoryBySlug(slug: string) {
 
 // ───────────────────────── Product cards ─────────────────────────
 
-const cardSelect = {
-  id: true,
-  slug: true,
-  title: true,
-  ratingAvg: true,
-  ratingCount: true,
-  shop: { select: { name: true, slug: true } },
-  images: { select: { url: true, alt: true }, orderBy: { position: "asc" }, take: 1 },
-  variants: { where: { isActive: true }, select: { priceMinor: true, compareAtMinor: true, stock: true } },
-} satisfies Prisma.ProductSelect;
+/** Card fields, with the discounts live at `now` so card prices include them. */
+function cardSelect(now: Date) {
+  const discounts = discountSelects(now);
+  return {
+    id: true,
+    slug: true,
+    title: true,
+    ratingAvg: true,
+    ratingCount: true,
+    shop: { select: { name: true, slug: true, discounts: discounts.shop } },
+    images: { select: { url: true, alt: true }, orderBy: { position: "asc" }, take: 1 },
+    variants: { where: { isActive: true }, select: { priceMinor: true, compareAtMinor: true, stock: true } },
+    discounts: discounts.product,
+  } satisfies Prisma.ProductSelect;
+}
 
-type CardRow = Prisma.ProductGetPayload<{ select: typeof cardSelect }>;
+type CardRow = Prisma.ProductGetPayload<{ select: ReturnType<typeof cardSelect> }>;
 
 export type ProductCardData = {
   id: string;
@@ -59,7 +66,7 @@ export type ProductCardData = {
   inStock: boolean;
 };
 
-function toCard(row: CardRow): ProductCardData {
+function toCard(row: CardRow, now: Date): ProductCardData {
   const image = row.images[0];
   return {
     id: row.id,
@@ -70,20 +77,33 @@ function toCard(row: CardRow): ProductCardData {
     shopSlug: row.shop.slug,
     ratingAvg: row.ratingAvg,
     ratingCount: row.ratingCount,
-    ...priceSummary(row.variants),
+    ...priceSummary(withDiscounts(row.variants, row.id, [...row.discounts, ...row.shop.discounts], now)),
   };
 }
 
+/** Variants with prices after live discounts (compare-at becomes the "was" price). */
+export function withDiscounts<V extends { priceMinor: number; compareAtMinor: number | null }>(
+  variants: V[],
+  productId: string,
+  rules: DiscountRule[],
+  now: Date,
+): (V & { basePriceMinor: number })[] {
+  return variants.map((v) => {
+    const price = effectivePrice(v, productId, rules, now);
+    return { ...v, basePriceMinor: v.priceMinor, priceMinor: price.priceMinor, compareAtMinor: price.compareAtMinor };
+  });
+}
+
 async function cards(where: Prisma.ProductWhereInput, orderBy: Prisma.ProductOrderByWithRelationInput[], take: number) {
-  const rows = await db.product.findMany({ where: { AND: [VISIBLE, where] }, select: cardSelect, orderBy, take });
-  return rows.map(toCard);
+  const now = new Date();
+  const rows = await db.product.findMany({ where: { AND: [VISIBLE, where] }, select: cardSelect(now), orderBy, take });
+  return rows.map((row) => toCard(row, now));
 }
 
 // ───────────────────────── Home page ─────────────────────────
 
-const hasMarkdown: Prisma.ProductWhereInput = {
-  variants: { some: { isActive: true, compareAtMinor: { gt: db.productVariant.fields.priceMinor } } },
-};
+// Kept up to date by refreshProductPricing (src/server/discounts.ts).
+const hasMarkdown: Prisma.ProductWhereInput = { hasDeal: true };
 
 export async function getHomeData() {
   const now = new Date();
@@ -167,6 +187,7 @@ const ORDER: Record<Exclude<CatalogQuery["sort"], "relevance">, Prisma.ProductOr
 type FilterKey = "categories" | "brands" | "shops" | "price" | "other";
 
 export async function searchCatalog(query: CatalogQuery, scope: CatalogScope = {}): Promise<CatalogResult> {
+  const now = new Date();
   const allCategories = await getCategories();
   const bySlug = new Map(allCategories.map((c) => [c.slug, c]));
 
@@ -230,17 +251,17 @@ export async function searchCatalog(query: CatalogQuery, scope: CatalogScope = {
       .map((r) => r.id)
       .sort((a, b) => ranked.get(a)! - ranked.get(b)!)
       .slice(skip, skip + PAGE_SIZE);
-    const byId = new Map((await db.product.findMany({ where: { id: { in: ids } }, select: cardSelect })).map((r) => [r.id, r]));
+    const byId = new Map((await db.product.findMany({ where: { id: { in: ids } }, select: cardSelect(now) })).map((r) => [r.id, r]));
     rows = ids.map((id) => byId.get(id)).filter((r) => r !== undefined);
   } else {
     const sort = query.sort === "relevance" ? "popular" : query.sort;
-    rows = await db.product.findMany({ where, select: cardSelect, orderBy: ORDER[sort], skip, take: PAGE_SIZE });
+    rows = await db.product.findMany({ where, select: cardSelect(now), orderBy: ORDER[sort], skip, take: PAGE_SIZE });
   }
 
   const facets = await buildFacets(categoryGroups, brandGroups, shopGroups, allCategories, scope);
 
   return {
-    items: rows.map(toCard),
+    items: rows.map((row) => toCard(row, now)),
     total,
     page,
     pageCount,
@@ -295,9 +316,12 @@ async function buildFacets(
 // ───────────────────────── Product page ─────────────────────────
 
 export async function getProductBySlug(slug: string) {
+  const now = new Date();
+  const discounts = discountSelects(now);
   const product = await db.product.findFirst({
     where: { slug, ...VISIBLE },
     include: {
+      discounts: discounts.product,
       images: { orderBy: { position: "asc" } },
       variants: {
         where: { isActive: true },
@@ -314,12 +338,14 @@ export async function getProductBySlug(slug: string) {
           ratingAvg: true,
           ratingCount: true,
           createdAt: true,
+          discounts: discounts.shop,
           _count: { select: { products: { where: { status: "ACTIVE" } } } },
         },
       },
     },
   });
   if (!product) return null;
+  const rules = [...product.discounts, ...product.shop.discounts];
 
   const [ratingGroups, reviews] = await Promise.all([
     db.review.groupBy({ by: ["rating"], where: { productId: product.id, status: "VISIBLE" }, _count: { _all: true } }),
@@ -338,7 +364,7 @@ export async function getProductBySlug(slug: string) {
 
   return {
     ...product,
-    variants: product.variants.map((v) => ({ ...v, attributes: v.attributes as Record<string, string> })),
+    variants: withDiscounts(product.variants, product.id, rules, now).map((v) => ({ ...v, attributes: v.attributes as Record<string, string> })),
     specs: (product.specs ?? {}) as Record<string, string>,
     reviews: reviews.map((r) => ({
       ...r,

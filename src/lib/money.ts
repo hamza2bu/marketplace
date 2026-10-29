@@ -12,3 +12,8 @@ export function parseMoney(input: string): number | null {
   const [whole, fraction = ""] = normalized.split(".");
   return Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
 }
+
+/** Agorot to an editable input value: 12990 → "129.90", null → "". */
+export function minorToInput(amountMinor: number | null): string {
+  return amountMinor === null ? "" : (amountMinor / 100).toFixed(2);
+}

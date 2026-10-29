@@ -311,7 +311,8 @@ export async function expireUnpaidOrders(now = new Date()): Promise<number> {
 /** Moves held seller funds into their available balance once the return window has passed. */
 export async function releaseDueFunds(now = new Date()): Promise<number> {
   const { count } = await db.subOrder.updateMany({
-    where: { transferStatus: "HELD", status: "DELIVERED", releaseAt: { lte: now } },
+    // RETURNED: a return closed with a partial refund; the rest is the seller's.
+    where: { transferStatus: "HELD", status: { in: ["DELIVERED", "RETURNED"] }, releaseAt: { lte: now } },
     data: { transferStatus: "RELEASED" },
   });
   return count;

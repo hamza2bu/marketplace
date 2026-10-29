@@ -142,11 +142,15 @@ model Shop {
   contactEmail    String
   contactPhone    String
 
-  // Payout account at the payment provider. Bank details live at the
-  // provider; we keep only its sub-merchant reference.
+  // Payout account at the payment provider, when it supports split payments.
   payoutProvider   String?
   payoutAccountRef String? @unique
   payoutsEnabled   Boolean @default(false)
+
+  // Bank account for manual payouts. Encrypted at rest (AES-256-GCM, see
+  // src/server/crypto.ts); only the last 4 digits are ever shown.
+  payoutBankEncrypted String?
+  payoutBankLast4     String?
 
   commissionBpsOverride Int?
   ratingAvg             Float    @default(0)
@@ -217,10 +221,12 @@ model Product {
   isFeatured     Boolean       @default(false)
 
   // Denormalized for listing, filtering and sorting.
-  minPriceMinor Int   @default(0)
-  ratingAvg     Float @default(0)
-  ratingCount   Int   @default(0)
-  salesCount    Int   @default(0)
+  // Lowest price after active discounts, and whether anything is marked down.
+  minPriceMinor Int     @default(0)
+  hasDeal       Boolean @default(false)
+  ratingAvg     Float   @default(0)
+  ratingCount   Int     @default(0)
+  salesCount    Int     @default(0)
 
   // Generated column (see migration add_product_search): title weighted A,
   // description B, using the 'simple' config because Postgres has no Hebrew
@@ -243,23 +249,27 @@ model Product {
   @@index([shopId])
   @@index([brandId])
   @@index([minPriceMinor])
+  @@index([hasDeal])
   @@index([createdAt])
   @@index([searchVector], type: Gin)
   @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "Product_title_trgm_idx")
 }
 
 model ProductVariant {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   productId      String
-  sku            String   @unique
-  attributes     Json     @default("{}") // e.g. { "color": "black", "size": "M" }
+  sku            String    @unique
+  attributes     Json      @default("{}") // e.g. { "color": "black", "size": "M" }
   priceMinor     Int
   compareAtMinor Int?
-  stock          Int      @default(0)
-  isDefault      Boolean  @default(false)
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  stock          Int       @default(0)
+  isDefault      Boolean   @default(false)
+  isActive       Boolean   @default(true)
+  // Set when a seller removes a variant that has orders: hidden everywhere,
+  // kept for order history. Its SKU gets a suffix so the code can be reused.
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   product    Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
   images     ProductImage[]
@@ -305,6 +315,8 @@ model Discount {
 
   @@index([shopId, isActive])
   @@index([productId])
+  @@index([startsAt])
+  @@index([endsAt])
 }
 
 // ───────────────────────── Shopping ─────────────────────────

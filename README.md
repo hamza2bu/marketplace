@@ -52,8 +52,11 @@ prisma/                    schema, migrations, seed
 src/app/[locale]/          pages, one tree per language (he | ar | en)
 src/app/api/               Auth.js, payment webhooks, cron jobs, cart count
 src/app/placeholder/       generated SVG images for seed data (works offline)
+src/app/[locale]/seller/   seller dashboard; /sell is the application form
 src/server/                server-only code: db, catalog/search, cart, orders, payments, auth guards, rate limiting
 src/server/payments/       payment provider adapters + the payment/refund/ledger service
+src/server/seller/         seller products, discounts, fulfilment, returns, analytics
+src/server/storage/        image uploads (Cloudinary, or local files in development)
 src/lib/                   shared helpers and Zod validation schemas
 src/i18n/, src/messages/   routing and translations
 src/proxy.ts               locale routing + sign-in gate for protected areas
@@ -97,3 +100,21 @@ Call this every 5 minutes (Vercel Cron, a system cron, …). It cancels unpaid o
 ```bash
 curl -H "Authorization: Bearer $CRON_SECRET" https://your-site/api/cron/maintenance
 ```
+
+## Sellers
+
+**Becoming a seller**: any signed-in customer can apply at `/sell` (shop name and address, business details with a validated Israeli company/dealer number, and a bank account for payouts). The shop starts as *pending*: the seller can build their catalog right away, but nothing is public until an admin approves the shop (Phase 5). Bank details are encrypted with AES-256-GCM (`DATA_ENCRYPTION_KEY`); only the last 4 digits are ever shown.
+
+**Dashboard** (`/seller`):
+
+- **Products**: create and edit with images, up to 3 options (size, color, …) generating variants with their own SKU, price, "was" price and stock, and specifications. *Publish* makes a product live; a product an admin rejected goes back to review. Products with orders are archived instead of deleted; removed variants that were ordered are kept (hidden) for order history.
+- **CSV import**: one row per variant, rows grouped by `handle`; re-importing updates products by handle and variants by SKU. Download the template from the import page. Rows are validated and errors are listed by row number. CSV can't carry uploaded images, so products imported without images are saved as drafts.
+- **Discounts**: percent or fixed, for one product or the whole shop, with start and end times (Israel time). The best live discount applies; prices in search, cart and checkout follow automatically, and the cron job re-prices products when discounts start or end.
+- **Orders**: paid → preparing → shipped (carrier + tracking number, emailed to the customer) → delivered. Delivery starts the return window. The seller can cancel before shipping (full refund and restock).
+- **Returns**: approve or reject the customer's request; once the item is back, refund in full or in part and optionally restock.
+- **Earnings**: sales, commission, refunds and net for 7/30/90 days, a daily sales chart, best sellers, the commission on each order and the current rate per category, money held / available / paid out, and payout history.
+- **Settings**: shop profile, logo and banner (shown on the public storefront `/s/<slug>`), and payout bank account (every change is audit-logged).
+
+### Images
+
+Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` and the browser uploads straight to Cloudinary with a short-lived signature (JPG/PNG/WebP, 5 MB max). Without them, development stores uploads in `storage/uploads/` (git-ignored); this is off in production unless `ALLOW_LOCAL_UPLOADS=true`. Files are checked by their content, not their name, and product images may only come from these sources.

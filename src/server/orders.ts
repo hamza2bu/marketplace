@@ -93,7 +93,8 @@ export async function placeOrder(
 
       for (const { line } of orderLines) {
         const { count } = await tx.productVariant.updateMany({
-          where: { id: line.variantId, isActive: true, stock: { gte: line.quantity }, priceMinor: line.unitPriceMinor },
+          // Also fails if the seller changed the price since the cart was read.
+          where: { id: line.variantId, isActive: true, stock: { gte: line.quantity }, priceMinor: line.basePriceMinor },
           data: { stock: { decrement: line.quantity } },
         });
         if (count === 0) throw new CheckoutAbort("out_of_stock");

@@ -63,7 +63,7 @@ export const shops: SeedShop[] = [
     slug: "techzone",
     description: "גאדג'טים, אביזרים ואודיו במחירים הוגנים, עם משלוח מהיר מהמחסן בפתח תקווה.",
     legalName: "טק זון בע\"מ",
-    taxId: "515000001",
+    taxId: "515000008",
     city: "פתח תקווה",
   },
   {
@@ -73,7 +73,7 @@ export const shops: SeedShop[] = [
     slug: "bayit-design",
     description: "כלי מטבח ועיצוב לבית, נבחרים בקפידה ממעצבים מקומיים.",
     legalName: "בית דיזיין בע\"מ",
-    taxId: "515000002",
+    taxId: "515000016",
     city: "חיפה",
   },
   {
@@ -83,7 +83,7 @@ export const shops: SeedShop[] = [
     slug: "urban-wear",
     description: "אופנה יומיומית מבדים איכותיים, בעיצוב תל אביבי.",
     legalName: "אורבן ויר בע\"מ",
-    taxId: "515000003",
+    taxId: "515000024",
     city: "תל אביב",
   },
 ];

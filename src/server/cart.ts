@@ -4,7 +4,8 @@ import { cookies } from "next/headers";
 import { db } from "@/server/db";
 import { getCurrentUser } from "@/server/auth/guards";
 import { getPlatformSettings } from "@/server/settings";
-import { includedVat, shippingFor } from "@/lib/pricing";
+import { effectivePrice, includedVat, shippingFor } from "@/lib/pricing";
+import { discountSelects } from "@/server/discounts";
 
 const CART_COOKIE = "cart";
 const CART_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
@@ -81,7 +82,8 @@ export type CartLine = {
   title: string;
   attributes: Record<string, string>;
   imageUrl: string | null;
-  unitPriceMinor: number;
+  unitPriceMinor: number; // after discounts: what the customer pays
+  basePriceMinor: number; // the variant's regular price
   compareAtMinor: number | null;
   lineTotalMinor: number;
   issue: CartIssue | null;
@@ -128,6 +130,8 @@ export async function getCartView(cartId?: string | null): Promise<CartView> {
   const id = cartId === undefined ? await findCartId() : cartId;
   if (!id) return { ...EMPTY, freeShippingOverMinor: settings.freeShippingOverMinor };
 
+  const now = new Date();
+  const discounts = discountSelects(now);
   const items = await db.cartItem.findMany({
     where: { cartId: id },
     orderBy: { id: "asc" },
@@ -139,7 +143,8 @@ export async function getCartView(cartId?: string | null): Promise<CartView> {
               slug: true,
               title: true,
               status: true,
-              shop: { select: { id: true, name: true, slug: true, status: true } },
+              discounts: discounts.product,
+              shop: { select: { id: true, name: true, slug: true, status: true, discounts: discounts.shop } },
               images: { select: { url: true }, orderBy: { position: "asc" }, take: 1 },
             },
           },
@@ -161,6 +166,7 @@ export async function getCartView(cartId?: string | null): Promise<CartView> {
           ? "insufficient_stock"
           : null;
 
+    const price = effectivePrice(variant, variant.productId, [...product.discounts, ...product.shop.discounts], now);
     const line: CartLine = {
       id: item.id,
       variantId: variant.id,
@@ -170,9 +176,10 @@ export async function getCartView(cartId?: string | null): Promise<CartView> {
       title: product.title,
       attributes: variant.attributes as Record<string, string>,
       imageUrl: product.images[0]?.url ?? null,
-      unitPriceMinor: variant.priceMinor,
-      compareAtMinor: variant.compareAtMinor && variant.compareAtMinor > variant.priceMinor ? variant.compareAtMinor : null,
-      lineTotalMinor: variant.priceMinor * item.quantity,
+      unitPriceMinor: price.priceMinor,
+      basePriceMinor: variant.priceMinor,
+      compareAtMinor: price.compareAtMinor,
+      lineTotalMinor: price.priceMinor * item.quantity,
       issue,
     };
     const group = groups.get(product.shop.id) ?? {

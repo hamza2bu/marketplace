@@ -4,6 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { directionOf, routing } from "@/i18n/routing";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SITE_URL } from "@/lib/site";
 import "../globals.css";
@@ -37,6 +38,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           <SessionProvider>
             <SiteHeader locale={locale} />
             <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">{children}</main>
+            <SiteFooter />
           </SessionProvider>
         </NextIntlClientProvider>
       </body>

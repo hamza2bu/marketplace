@@ -51,6 +51,7 @@ async function seedProduct(p: SeedProduct, index: number, shopId: string, catego
     status: "ACTIVE" as const,
     isFeatured: p.featured ?? false,
     minPriceMinor: Math.min(...prices),
+    hasDeal: prices.some((price) => (p.compareAt ?? 0) > price),
   };
   const product = await db.product.upsert({
     where: { slug: p.slug },
