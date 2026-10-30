@@ -5,7 +5,7 @@ import { z } from "zod";
 import { parseMoney } from "@/lib/money";
 import { shipmentSchema } from "@/lib/validation/seller";
 import { sellerAction } from "@/server/seller/context";
-import { advanceSubOrder, cancelBySeller, decideReturn } from "@/server/seller/orders";
+import { advanceSubOrder, cancelBySeller, decideReturn, sellerDisputeReply } from "@/server/seller/orders";
 
 export type SellerOrderState = { ok?: boolean; error?: string; fieldErrors?: Record<string, string> };
 
@@ -36,6 +36,16 @@ export async function cancelOrderAction(_prev: SellerOrderState, formData: FormD
   const result = await cancelBySeller(shop.id, String(formData.get("subOrderId") ?? ""), reason.data, user.id);
   if (result.ok) refresh();
   return result;
+}
+
+export async function disputeReplyAction(_prev: SellerOrderState, formData: FormData): Promise<SellerOrderState> {
+  const { shop, user, limited } = await sellerAction(formData.get("locale"));
+  if (limited) return { error: "rateLimited" };
+  const text = z.string().trim().min(2).max(1000).safeParse(formData.get("message"));
+  if (!text.success) return { fieldErrors: { message: "reasonRequired" } };
+  const result = await sellerDisputeReply(shop.id, String(formData.get("disputeId") ?? ""), text.data, user.id);
+  if (result.ok) refresh();
+  return result.ok ? { ok: true } : { error: "not_allowed" };
 }
 
 export async function returnDecisionAction(_prev: SellerOrderState, formData: FormData): Promise<SellerOrderState> {

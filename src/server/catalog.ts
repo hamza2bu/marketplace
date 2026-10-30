@@ -117,7 +117,8 @@ export async function getHomeData() {
           { OR: [{ endsAt: null }, { endsAt: { gt: now } }] },
         ],
       },
-      orderBy: { sortOrder: "asc" },
+      // Ties go to the newest, so a banner an admin just added shows up.
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
       take: 5,
     }),
     cards(hasMarkdown, [{ salesCount: "desc" }, { createdAt: "desc" }], 8),

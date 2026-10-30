@@ -16,8 +16,8 @@ export async function salesSummary(shopId: string, days: RangeDays, now = new Da
   ]);
   const sum = (type: string) => byType.find((g) => g.type === type)?._sum.amountMinor ?? 0;
   const gross = sum("SALE");
-  const commission = -sum("COMMISSION"); // net of commission returned on refunds
-  const refunds = -sum("REFUND");
+  const commission = -sum("COMMISSION") || 0; // net of commission returned on refunds
+  const refunds = -sum("REFUND") || 0;
   return {
     grossMinor: gross,
     commissionMinor: commission,
@@ -75,7 +75,8 @@ export async function balances(shopId: string) {
     db.ledgerEntry.aggregate({ where: { shopId, type: "PAYOUT" }, _sum: { amountMinor: true } }),
     db.ledgerEntry.aggregate({ where: { shopId, subOrderId: null, type: { not: "PAYOUT" } }, _sum: { amountMinor: true } }),
   ]);
-  const paidOut = -(payouts._sum.amountMinor ?? 0);
+  // "|| 0" turns -0 into 0, so nothing renders as "−₪0.00".
+  const paidOut = -(payouts._sum.amountMinor ?? 0) || 0;
   return {
     heldMinor: held._sum.amountMinor ?? 0,
     availableMinor: (released._sum.amountMinor ?? 0) + (adjustments._sum.amountMinor ?? 0) - paidOut,

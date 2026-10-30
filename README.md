@@ -53,9 +53,11 @@ src/app/[locale]/          pages, one tree per language (he | ar | en)
 src/app/api/               Auth.js, payment webhooks, cron jobs, cart count
 src/app/placeholder/       generated SVG images for seed data (works offline)
 src/app/[locale]/seller/   seller dashboard; /sell is the application form
+src/app/[locale]/admin/    admin panel
 src/server/                server-only code: db, catalog/search, cart, orders, payments, auth guards, rate limiting
 src/server/payments/       payment provider adapters + the payment/refund/ledger service
 src/server/seller/         seller products, discounts, fulfilment, returns, analytics
+src/server/admin/          shops, moderation, categories/banners/settings, orders/disputes, payouts, reports, users
 src/server/storage/        image uploads (Cloudinary, or local files in development)
 src/lib/                   shared helpers and Zod validation schemas
 src/i18n/, src/messages/   routing and translations
@@ -118,3 +120,20 @@ curl -H "Authorization: Bearer $CRON_SECRET" https://your-site/api/cron/maintena
 ### Images
 
 Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` and the browser uploads straight to Cloudinary with a short-lived signature (JPG/PNG/WebP, 5 MB max). Without them, development stores uploads in `storage/uploads/` (git-ignored); this is off in production unless `ALLOW_LOCAL_UPLOADS=true`. Files are checked by their content, not their name, and product images may only come from these sources.
+
+## Admin panel
+
+Sign in as `admin@example.com` and open `/admin`. Every admin page and action re-checks the admin role against the database, and every change is written to the activity log (`/admin/audit`).
+
+- **Overview**: sales, commission, orders and average order for the last 30 days, plus a to-do list (seller applications, products to review, open disputes, flagged reviews, payouts due).
+- **Sellers**: approve or reject applications; suspend (hides the shop and its products, the seller can still fulfil open orders), reactivate, or remove permanently (only once no orders are open; the owner loses the seller area). Set a per-shop commission rate. View the full payout bank account; each view is logged.
+- **Products**: approve products sent back for review, reject with a note the seller sees, and feature products on the home page.
+- **Reviews**: show, hide or delete; product and shop ratings are recalculated.
+- **Orders**: search by order number or customer email; see every shipment, its commission and payout status, payment events and refunds; refund any amount (optionally cancelling a not-yet-shipped shipment and restocking).
+- **Disputes**: customers report a problem on a shipment from their order page; the seller and the admin reply in the same thread; the admin resolves it, optionally with a refund.
+- **Payouts**: shows each seller's available balance (released sales, net of refunds). Transfer it from the bank, then record it here with the bank reference: the ledger, the seller's balance and payout history update.
+- **Revenue**: GMV, commission earned (net of refunds), orders, average order, refunds, new customers and applications for 7/30/90/365 days; daily GMV and commission charts; top sellers and categories; CSV export for accounting.
+- **Categories**: two levels (top level and leaves; products live in leaves), names in all three languages, commission per category (inherited from the parent when empty), order, image, active flag.
+- **Banners**: home page banners with an image, titles in three languages, a link inside the site, and an optional schedule.
+- **Settings**: default commission, VAT, shipping per seller and the free-shipping threshold, return window and payment window. Changes apply to new orders only.
+- **Users**: search, suspend and reactivate accounts (not admins). A suspended user's session ends at its next check (within a minute).

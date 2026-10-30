@@ -5,6 +5,7 @@ import type { SubOrderStatus } from "@/generated/prisma/enums";
 import { SELLER_TRANSITIONS } from "@/lib/order-status";
 import { getPlatformSettings } from "@/server/settings";
 import { refundSubOrder, RefundError, syncOrderStatus } from "@/server/payments/service";
+import { addDisputeMessage } from "@/server/admin/orders";
 
 export type SellerOrderError = "not_found" | "not_allowed" | "refund_failed" | "invalid_amount";
 
@@ -43,8 +44,16 @@ export async function getSellerSubOrder(shopId: string, id: string) {
       events: { orderBy: { createdAt: "asc" } },
       returnRequests: { orderBy: { createdAt: "desc" } },
       refunds: { where: { status: "SUCCEEDED" }, select: { amountMinor: true, reason: true, createdAt: true } },
+      disputes: { orderBy: { createdAt: "desc" }, select: { id: true, status: true, messages: true } },
     },
   });
+}
+
+/** The seller's side of a dispute about one of their orders. */
+export async function sellerDisputeReply(shopId: string, disputeId: string, text: string, actorId: string) {
+  const dispute = await db.dispute.findFirst({ where: { id: disputeId, subOrder: { shopId } }, select: { id: true } });
+  if (!dispute) return { ok: false as const };
+  return addDisputeMessage(dispute.id, "seller", text, actorId);
 }
 
 /** Counts for the dashboard's "needs your attention" list. */

@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useErrorText } from "@/components/ui/use-error-text";
 import { CARRIERS } from "@/lib/validation/seller";
-import { advanceOrderAction, cancelOrderAction, returnDecisionAction, type SellerOrderState } from "./actions";
+import { advanceOrderAction, cancelOrderAction, disputeReplyAction, returnDecisionAction, type SellerOrderState } from "./actions";
 
 const input = "w-full rounded-md border border-border bg-background px-2 py-1.5 text-base";
 
@@ -87,6 +87,25 @@ export function SellerCancelForm({ subOrderId }: { subOrderId: string }) {
         <Feedback state={state} />
       </form>
     </details>
+  );
+}
+
+export function DisputeReplyForm({ disputeId }: { disputeId: string }) {
+  const t = useTranslations("seller.orders");
+  const locale = useLocale();
+  const err = useErrorText();
+  const [state, action, pending] = useActionState<SellerOrderState, FormData>(disputeReplyAction, {});
+  return (
+    <form action={action} className="space-y-2">
+      <input type="hidden" name="locale" value={locale} />
+      <input type="hidden" name="disputeId" value={disputeId} />
+      <textarea name="message" required rows={2} aria-label={t("reply")} className={input} />
+      {state.fieldErrors?.message && <span className="text-sm text-danger">{err(state.fieldErrors.message)}</span>}
+      <button disabled={pending} className="rounded-md border border-border px-3 py-1.5 text-sm disabled:opacity-60">
+        {t("reply")}
+      </button>
+      <Feedback state={state} />
+    </form>
   );
 }
 

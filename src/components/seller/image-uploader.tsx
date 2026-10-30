@@ -1,18 +1,18 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { ProductImage } from "@/components/catalog/product-image";
 import { IMAGE_TYPES, MAX_IMAGE_BYTES } from "@/lib/images";
-import { prepareUploadAction } from "@/app/[locale]/seller/products/actions";
+import { prepareImageUploadAction } from "@/app/actions/uploads";
 
 export type UploadedImage = { url: string; alt: string };
 
 /** Uploads one image to wherever the server says (Cloudinary or local dev storage). */
-export async function uploadImage(locale: string, file: File): Promise<{ url: string } | { error: "too_large" | "bad_type" | "failed" | "off" }> {
+export async function uploadImage(file: File): Promise<{ url: string } | { error: "too_large" | "bad_type" | "failed" | "off" }> {
   if (file.size > MAX_IMAGE_BYTES) return { error: "too_large" };
   if (!IMAGE_TYPES.includes(file.type as (typeof IMAGE_TYPES)[number])) return { error: "bad_type" };
-  const target = await prepareUploadAction(locale);
+  const target = await prepareImageUploadAction();
   if (target.kind === "none") return { error: "off" };
   const body = new FormData();
   for (const [k, v] of Object.entries(target.fields)) body.append(k, v);
@@ -30,7 +30,6 @@ export async function uploadImage(locale: string, file: File): Promise<{ url: st
 
 export function ImageUploader({ images, onChange, max = 10 }: { images: UploadedImage[]; onChange: (images: UploadedImage[]) => void; max?: number }) {
   const t = useTranslations("seller.form");
-  const locale = useLocale();
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -42,7 +41,7 @@ export function ImageUploader({ images, onChange, max = 10 }: { images: Uploaded
     const added: UploadedImage[] = [];
     const problems: string[] = [];
     for (const file of Array.from(files).slice(0, max - images.length)) {
-      const result = await uploadImage(locale, file);
+      const result = await uploadImage(file);
       if ("url" in result) added.push({ url: result.url, alt: "" });
       else if (result.error === "off") problems.push(t("uploadsOff"));
       else {

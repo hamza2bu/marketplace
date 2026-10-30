@@ -58,7 +58,8 @@ export async function requireRole(
 /** A seller and their shop. Pass `approved` to also require an approved shop. */
 export async function requireSeller(locale: string, opts: { approved?: boolean } = {}) {
   const user = await requireRole(["SELLER"], locale, `/${locale}/seller`);
-  if (!user.shop) redirect(`/${locale}/forbidden`);
+  // A removed shop's owner keeps their account but loses the seller area.
+  if (!user.shop || user.shop.status === "REMOVED") redirect(`/${locale}/forbidden`);
   if (opts.approved && user.shop.status !== "APPROVED") redirect(`/${locale}/seller`);
   return { user, shop: user.shop };
 }

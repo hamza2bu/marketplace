@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { cancelPendingOrderAction, cancelSubOrderAction, requestReturnAction, type OrderActionState } from "./actions";
+import { cancelPendingOrderAction, cancelSubOrderAction, openDisputeAction, requestReturnAction, type OrderActionState } from "./actions";
 
 function ErrorText({ state }: { state: OrderActionState }) {
   const t = useTranslations("orders.actionError");
@@ -48,6 +48,29 @@ export function CancelSubOrderButton({ subOrderId }: { subOrderId: string }) {
       </button>
       <ErrorText state={state} />
     </form>
+  );
+}
+
+export function ReportProblemForm({ subOrderId }: { subOrderId: string }) {
+  const t = useTranslations("orders");
+  const locale = useLocale();
+  const [state, action, pending] = useActionState(openDisputeAction, {});
+  return (
+    <details className="text-sm">
+      <summary className="cursor-pointer text-muted underline">{t("reportProblem")}</summary>
+      <form action={action} className="mt-2 space-y-2">
+        <input type="hidden" name="locale" value={locale} />
+        <input type="hidden" name="subOrderId" value={subOrderId} />
+        <label className="block">
+          <span className="mb-1 block text-muted">{t("problemHint")}</span>
+          <textarea name="reason" required minLength={5} maxLength={1000} rows={3} className="w-full rounded-md border border-border bg-background p-2 text-base" />
+        </label>
+        <ErrorText state={state} />
+        <button disabled={pending} className="rounded-md border border-border px-3 py-1.5 font-medium disabled:opacity-50">
+          {t("sendProblem")}
+        </button>
+      </form>
+    </details>
   );
 }
 

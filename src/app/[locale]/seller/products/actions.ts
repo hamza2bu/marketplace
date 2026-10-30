@@ -6,7 +6,6 @@ import { parseProductCsv } from "@/lib/csv-import";
 import { db } from "@/server/db";
 import { sellerAction } from "@/server/seller/context";
 import { changeProductLifecycle, saveProduct } from "@/server/seller/products";
-import { uploadTarget } from "@/server/storage";
 import type { ProductStatus } from "@/generated/prisma/enums";
 
 export type SaveProductState = {
@@ -44,12 +43,6 @@ export async function productLifecycleAction(formData: FormData): Promise<void> 
   if (limited || !["archive", "restore", "delete"].includes(action)) return;
   await changeProductLifecycle(shop.id, String(formData.get("productId") ?? ""), action as "archive" | "restore" | "delete");
   refresh();
-}
-
-/** Where the browser should upload an image (Cloudinary signature, or the local dev endpoint). */
-export async function prepareUploadAction(locale: string) {
-  const { shop } = await sellerAction(locale);
-  return uploadTarget(shop.id);
 }
 
 export type ImportState = {

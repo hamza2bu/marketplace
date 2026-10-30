@@ -8,7 +8,8 @@ import { requireUser } from "@/server/auth/guards";
 import { getCustomerOrder } from "@/server/orders";
 import { isTestProviderEnabled } from "@/server/payments";
 import { TEST_PROVIDER_ID } from "@/server/payments/providers/test-provider";
-import { CancelPendingOrderButton, CancelSubOrderButton, ReturnRequestForm } from "../order-actions";
+import { CancelPendingOrderButton, CancelSubOrderButton, ReportProblemForm, ReturnRequestForm } from "../order-actions";
+import { DisputeThread } from "@/components/admin/dispute-thread";
 
 export const metadata: Metadata = { robots: { index: false } };
 
@@ -21,12 +22,13 @@ export default async function OrderDetailPage({ params }: PageProps<"/[locale]/a
   const order = await getCustomerOrder(user.id, number);
   if (!order) notFound();
 
-  const [t, statusT, subT, returnT, cartT] = await Promise.all([
+  const [t, statusT, subT, returnT, cartT, disputeT] = await Promise.all([
     getTranslations("orders"),
     getTranslations("orderStatus"),
     getTranslations("subOrderStatus"),
     getTranslations("returnStatus"),
     getTranslations("cart"),
+    getTranslations("admin.disputes"),
   ]);
   const money = (n: number) => formatMoney(n, locale);
   const dateTime = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
@@ -106,6 +108,13 @@ export default async function OrderDetailPage({ params }: PageProps<"/[locale]/a
                     </ol>
                   </div>
                   {lastReturn && <p>{t("returnStatus", { status: returnT(lastReturn.status) })}</p>}
+                  {sub.disputes.map((d) => (
+                    <div key={d.id} className="space-y-2 rounded-md border border-border p-3">
+                      <p className="font-medium">{t("disputeTitle", { status: disputeT(`status.${d.status}`) })}</p>
+                      <DisputeThread messages={d.messages} locale={locale} />
+                    </div>
+                  ))}
+                  {order.paidAt && !sub.disputes.some((d) => d.status !== "RESOLVED") && <ReportProblemForm subOrderId={sub.id} />}
                   {sub.status === "PAID" && <CancelSubOrderButton subOrderId={sub.id} />}
                   {canReturn && (
                     <div className="space-y-2">

@@ -27,13 +27,13 @@ export type UploadTarget =
   | { kind: "local"; url: string; fields: Record<string, string> }
   | { kind: "none" };
 
-/** Where the browser should send an image, for this shop. */
-export function uploadTarget(shopId: string): UploadTarget {
+/** Where the browser should send an image; `folder` is "admin" or "shops/<id>". */
+export function uploadTarget(folder: string): UploadTarget {
   const cfg = cloudinaryConfig();
   if (cfg) {
     const params: Record<string, string> = {
       allowed_formats: "jpg,png,webp",
-      folder: `marketplace/shops/${shopId}`,
+      folder: `marketplace/${folder}`,
       timestamp: String(Math.floor(Date.now() / 1000)),
     };
     const toSign = Object.keys(params)

@@ -3,10 +3,11 @@ import { rateLimit } from "@/server/rate-limit";
 import { saveLocalImage, UploadError } from "@/server/storage";
 
 // Local-development image uploads (Cloudinary uploads go straight from the
-// browser to Cloudinary). Sellers only.
+// browser to Cloudinary). Sellers and admins only.
 export async function POST(request: Request) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "SELLER" || !user.shop || user.shop.status === "REMOVED") {
+  const seller = user?.role === "SELLER" && user.shop && user.shop.status !== "REMOVED";
+  if (!user || (!seller && user.role !== "ADMIN")) {
     return Response.json({ error: "forbidden" }, { status: 403 });
   }
   if (!(await rateLimit("account", "upload", user.id)).ok) return Response.json({ error: "rate_limited" }, { status: 429 });

@@ -5,7 +5,8 @@ import { ProductImage } from "@/components/catalog/product-image";
 import { formatMoney } from "@/lib/money";
 import { requireSeller } from "@/server/auth/guards";
 import { getSellerSubOrder } from "@/server/seller/orders";
-import { AdvanceForm, SellerCancelForm } from "../order-actions";
+import { AdvanceForm, DisputeReplyForm, SellerCancelForm } from "../order-actions";
+import { DisputeThread } from "@/components/admin/dispute-thread";
 
 export const metadata: Metadata = { robots: { index: false } };
 
@@ -18,12 +19,13 @@ export default async function SellerOrderPage({ params }: PageProps<"/[locale]/s
   const sub = await getSellerSubOrder(shop.id, id);
   if (!sub) notFound();
 
-  const [t, subT, transferT, carriersT, returnT] = await Promise.all([
+  const [t, subT, transferT, carriersT, returnT, disputeT] = await Promise.all([
     getTranslations("seller.orders"),
     getTranslations("subOrderStatus"),
     getTranslations("seller.transferStatus"),
     getTranslations("seller.carriers"),
     getTranslations("returnStatus"),
+    getTranslations("admin.disputes"),
   ]);
   const money = (n: number) => formatMoney(n, locale);
   const dateTime = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jerusalem" });
@@ -71,6 +73,15 @@ export default async function SellerOrderPage({ params }: PageProps<"/[locale]/s
           {sub.status === "DELIVERED" && sub.releaseAt && (
             <p className="rounded-md bg-surface p-3 text-sm">{t("deliveredNote", { date: dateTime.format(sub.releaseAt) })}</p>
           )}
+          {sub.disputes.map((d) => (
+            <section key={d.id} className="space-y-2 rounded-lg border border-danger/40 p-4">
+              <h2 className="font-semibold">
+                {t("dispute")} · {disputeT(`status.${d.status}`)}
+              </h2>
+              <DisputeThread messages={d.messages} locale={locale} />
+              {d.status !== "RESOLVED" && <DisputeReplyForm disputeId={d.id} />}
+            </section>
+          ))}
           {sub.returnRequests[0] && (
             <p className="rounded-md bg-surface p-3 text-sm">
               {returnT(sub.returnRequests[0].status)}: {sub.returnRequests[0].reason}

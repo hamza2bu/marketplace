@@ -232,6 +232,7 @@ function findCustomerOrder(userId: string, number: string) {
           events: { orderBy: { createdAt: "asc" } },
           returnRequests: { orderBy: { createdAt: "desc" } },
           refunds: { where: { status: "SUCCEEDED" }, select: { amountMinor: true, createdAt: true } },
+          disputes: { orderBy: { createdAt: "desc" }, select: { id: true, status: true, messages: true, resolution: true } },
         },
       },
       refunds: { where: { status: "SUCCEEDED", subOrderId: null }, select: { amountMinor: true } },

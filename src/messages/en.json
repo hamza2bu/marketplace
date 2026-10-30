@@ -243,7 +243,9 @@
       "cancel": "Cancel and refund",
       "cancelReason": "Reason (shown to the customer)",
       "cancelConfirm": "Cancel this order and refund the customer in full?",
-      "timeline": "History"
+      "timeline": "History",
+      "dispute": "The customer reported a problem",
+      "reply": "Reply"
     },
     "carriers": {
       "israel-post": "Israel Post",
@@ -324,12 +326,271 @@
   },
   "admin": {
     "title": "Admin",
-    "users": "Users",
-    "shops": "Shops",
-    "pendingShops": "Shops waiting for approval",
-    "products": "Products",
-    "orders": "Orders",
-    "commission": "Global commission"
+    "nav": {
+      "overview": "Overview",
+      "shops": "Sellers",
+      "products": "Products",
+      "reviews": "Reviews",
+      "orders": "Orders",
+      "disputes": "Disputes",
+      "payouts": "Payouts",
+      "reports": "Revenue",
+      "categories": "Categories",
+      "banners": "Banners",
+      "settings": "Settings",
+      "users": "Users",
+      "audit": "Activity log"
+    },
+    "common": {
+      "search": "Search",
+      "all": "All",
+      "save": "Save",
+      "saved": "Saved.",
+      "delete": "Delete",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "reason": "Reason",
+      "reasonShown": "Reason (shared with the seller)",
+      "none": "Nothing here.",
+      "view": "View",
+      "date": "Date",
+      "status": "Status",
+      "amount": "Amount",
+      "confirm": "Are you sure?",
+      "export": "Download CSV",
+      "invalid": "Please check the values you entered.",
+      "rateLimited": "Too many actions. Wait a moment.",
+      "needImage": "Upload an image.",
+      "endBeforeStart": "The end must be after the start.",
+      "required": "Fill in the required fields.",
+      "image_not_allowed": "Upload the image here.",
+      "invalidLink": "Use a path on this site that starts with /"
+    },
+    "overview": {
+      "title": "Marketplace overview",
+      "last30": "Last 30 days",
+      "gmv": "Sales (GMV)",
+      "commission": "Commission earned",
+      "orders": "Paid orders",
+      "aov": "Average order",
+      "todo": "To do",
+      "pendingShops": "{count, plural, =0 {No seller applications} one {# seller application to review} other {# seller applications to review}}",
+      "pendingProducts": "{count, plural, =0 {No products to review} one {# product to review} other {# products to review}}",
+      "openDisputes": "{count, plural, =0 {No open disputes} one {# open dispute} other {# open disputes}}",
+      "flaggedReviews": "{count, plural, =0 {No flagged reviews} one {# flagged review} other {# flagged reviews}}",
+      "payable": "{count, plural, =0 {No payouts due} one {# seller to pay} other {# sellers to pay}}"
+    },
+    "shops": {
+      "title": "Sellers",
+      "search": "Shop name, address or owner email",
+      "owner": "Owner",
+      "applied": "Applied",
+      "products": "Products",
+      "orders": "Orders",
+      "commission": "Commission",
+      "default": "Default",
+      "business": "Business",
+      "contact": "Contact",
+      "bank": "Payout account",
+      "reveal": "Show full bank details (logged)",
+      "bankDetails": "Bank {bank}, branch {branch}, account {account} · {holder}",
+      "money": "Money",
+      "openOrders": "{count, plural, =0 {No open orders} one {# open order} other {# open orders}}",
+      "actions": "Decision",
+      "approve": "Approve shop",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate",
+      "remove": "Remove permanently",
+      "reject": "Reject application",
+      "removeWarning": "Removing hides the shop and its products for good.",
+      "commissionOverride": "Commission override (%)",
+      "commissionHint": "Empty = use category and global rates.",
+      "history": "History",
+      "statusReason": "Last reason: {reason}",
+      "errors": {
+        "not_allowed": "That change isn't possible from the current status.",
+        "open_orders": "This shop has open orders. Finish or refund them first.",
+        "not_found": "Not found.",
+        "invalid": "Please check the values you entered.",
+        "rateLimited": "Too many actions. Wait a moment."
+      }
+    },
+    "products": {
+      "title": "Product moderation",
+      "search": "Title, address or shop",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectNote": "What must the seller fix?",
+      "feature": "Feature on home page",
+      "unfeature": "Remove from home page",
+      "featured": "Featured"
+    },
+    "reviews": {
+      "title": "Review moderation",
+      "by": "by {email}",
+      "show": "Show",
+      "hide": "Hide",
+      "status": {
+        "VISIBLE": "Visible",
+        "HIDDEN": "Hidden",
+        "FLAGGED": "Flagged"
+      }
+    },
+    "orders": {
+      "title": "All orders",
+      "search": "Order number or customer email",
+      "customer": "Customer",
+      "shipments": "Shipments",
+      "dispute": "Dispute",
+      "payment": "Payment events",
+      "refunds": "Refunds",
+      "noRefunds": "No refunds.",
+      "refund": "Refund",
+      "refundAmount": "Amount in ₪ (empty = everything left: {max})",
+      "restock": "Return items to stock",
+      "cancelToo": "Also cancel this shipment (not shipped yet)",
+      "errors": {
+        "not_found": "Not found.",
+        "not_refundable": "Nothing left to refund here, or it already shipped.",
+        "invalid_amount": "That's more than can be refunded.",
+        "provider_failed": "The payment provider refused the refund. Try again.",
+        "not_allowed": "Not possible now.",
+        "invalid": "Please fill in the reason.",
+        "rateLimited": "Too many actions. Wait a moment."
+      }
+    },
+    "disputes": {
+      "title": "Open disputes",
+      "openedBy": "Opened by {email} on {date}",
+      "message": "Write to the customer and seller",
+      "send": "Send",
+      "resolve": "Resolve",
+      "resolution": "Decision (shown to both sides)",
+      "refundAmount": "Refund in ₪ (optional)",
+      "who": {
+        "customer": "Customer",
+        "seller": "Seller",
+        "admin": "Marketplace"
+      },
+      "status": {
+        "OPEN": "Open",
+        "UNDER_REVIEW": "Under review",
+        "RESOLVED": "Resolved"
+      }
+    },
+    "payouts": {
+      "title": "Seller payouts",
+      "intro": "Transfer each seller's available balance from the bank, then record it here with the bank's reference.",
+      "due": "Due now",
+      "available": "Available",
+      "reference": "Bank transfer reference",
+      "record": "Record payout",
+      "recorded": "Payout of {amount} recorded.",
+      "history": "Recent payouts",
+      "errors": {
+        "nothing_to_pay": "Nothing to pay this seller right now.",
+        "no_bank_account": "This seller has no bank account on file.",
+        "invalid": "Enter the bank reference.",
+        "rateLimited": "Too many actions. Wait a moment."
+      }
+    },
+    "reports": {
+      "title": "Platform revenue",
+      "range": "{days} days",
+      "gmvChart": "Daily sales (GMV)",
+      "commissionChart": "Daily commission",
+      "refunds": "Refunds",
+      "newCustomers": "New customers",
+      "newShops": "New seller applications",
+      "topShops": "Top sellers",
+      "byCategory": "By category",
+      "sales": "Sales",
+      "commission": "Commission",
+      "chartLabel": "{title} over the last {days} days.",
+      "csvHint": "Every paid sub-order in the period with commission and seller net, for your accountant."
+    },
+    "categories": {
+      "title": "Categories and commission",
+      "new": "New category",
+      "slug": "Web name",
+      "nameHe": "Name (Hebrew)",
+      "nameAr": "Name (Arabic)",
+      "nameEn": "Name (English)",
+      "parent": "Parent",
+      "topLevel": "None (top level)",
+      "commission": "Commission (%)",
+      "commissionHint": "Empty = inherit from parent, then global.",
+      "inherited": "inherited",
+      "sortOrder": "Order",
+      "active": "Active",
+      "image": "Image",
+      "products": "{count} products",
+      "errors": {
+        "slug_taken": "That web name is taken.",
+        "bad_parent": "Categories are two levels deep: choose a top-level parent.",
+        "has_products": "That category has products; it can't have subcategories or be deleted.",
+        "has_children": "Delete or move its subcategories first.",
+        "image_not_allowed": "Upload the image here.",
+        "not_found": "Not found.",
+        "invalid": "Please check the values you entered.",
+        "rateLimited": "Too many actions. Wait a moment."
+      }
+    },
+    "banners": {
+      "title": "Home page banners",
+      "new": "New banner",
+      "titleHe": "Title (Hebrew)",
+      "titleAr": "Title (Arabic)",
+      "titleEn": "Title (English)",
+      "subtitleHe": "Subtitle (Hebrew)",
+      "subtitleAr": "Subtitle (Arabic)",
+      "subtitleEn": "Subtitle (English)",
+      "link": "Link (a page on this site, e.g. /deals)",
+      "startsAt": "Show from (optional)",
+      "endsAt": "Show until (optional)",
+      "active": "Active",
+      "image": "Image (wide, about 1600×600)",
+      "invalidLink": "Use a path on this site that starts with /",
+      "errors": {
+        "invalid": "Please check the values you entered.",
+        "rateLimited": "Too many actions. Wait a moment.",
+        "needImage": "Upload an image.",
+        "endBeforeStart": "The end must be after the start.",
+        "required": "Fill in the required fields.",
+        "image_not_allowed": "Upload the image here.",
+        "invalidLink": "Use a path on this site that starts with /"
+      }
+    },
+    "settings": {
+      "title": "Platform settings",
+      "globalCommission": "Default commission (%)",
+      "vat": "VAT (%)",
+      "shippingFlat": "Shipping per seller (₪)",
+      "freeShippingOver": "Free shipping from (₪, per seller)",
+      "returnWindow": "Return window (days)",
+      "paymentWindow": "Time to pay before an order is cancelled (minutes)",
+      "note": "Changes apply to new orders. Existing orders keep the rates they were placed with."
+    },
+    "users": {
+      "title": "Users",
+      "search": "Email or name",
+      "joined": "Joined",
+      "suspend": "Suspend",
+      "activate": "Reactivate",
+      "status": {
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended"
+      },
+      "email": "Email"
+    },
+    "audit": {
+      "title": "Activity log",
+      "who": "Who",
+      "what": "Action",
+      "on": "On",
+      "details": "Details",
+      "system": "system"
+    }
   },
   "forbidden": {
     "title": "No access",
@@ -534,7 +795,11 @@
       "not_allowed": "This can no longer be done for this order.",
       "refund_failed": "The refund couldn't be processed. Please try again or contact support.",
       "invalid": "Please tell us the reason (at least 5 characters)."
-    }
+    },
+    "reportProblem": "Report a problem with this shipment",
+    "problemHint": "Tell us what went wrong. The seller and our team will see it.",
+    "sendProblem": "Send",
+    "disputeTitle": "Problem report: {status}"
   },
   "orderStatus": {
     "PENDING_PAYMENT": "Awaiting payment",
