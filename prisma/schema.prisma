@@ -29,17 +29,19 @@ enum UserStatus {
 }
 
 model User {
-  id            String     @id @default(cuid())
-  email         String     @unique
-  emailVerified DateTime?
-  name          String?
-  image         String?
-  passwordHash  String?
-  role          Role       @default(CUSTOMER)
-  status        UserStatus @default(ACTIVE)
-  locale        String     @default("he")
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id                String     @id @default(cuid())
+  email             String     @unique
+  emailVerified     DateTime?
+  name              String?
+  image             String?
+  passwordHash      String?
+  // Sessions issued before this are rejected (set when the password changes).
+  passwordChangedAt DateTime?
+  role              Role       @default(CUSTOMER)
+  status            UserStatus @default(ACTIVE)
+  locale            String     @default("he")
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   accounts    Account[]
   sessions    Session[]
@@ -644,6 +646,10 @@ model Review {
   body        String
   status      ReviewStatus @default(VISIBLE)
   sellerReply String?
+  // Reported by a shopper. Stays visible until an admin decides, so a report
+  // alone can't hide someone's review.
+  flaggedAt   DateTime?
+  flagReason  String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
@@ -652,6 +658,7 @@ model Review {
   orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
 
   @@index([productId, status, createdAt])
+  @@index([flaggedAt])
 }
 
 // ───────────────────────── Platform ─────────────────────────
@@ -705,18 +712,25 @@ model CsvImportJob {
   shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
 }
 
+// Outgoing email queue. Rows are created as "queued" in the same transaction
+// as the change they describe, then sent by src/server/email (right after the
+// request, and again by the cron job for anything that failed).
 model EmailLog {
-  id       String   @id @default(cuid())
-  userId   String?
-  to       String
-  template String
-  payload  Json
-  status   String
-  sentAt   DateTime @default(now())
+  id        String    @id @default(cuid())
+  userId    String?
+  to        String
+  template  String
+  payload   Json
+  status    String // queued | sent | logged (no provider configured) | failed
+  attempts  Int       @default(0)
+  lastError String?
+  createdAt DateTime  @default(now())
+  sentAt    DateTime?
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+  @@index([status, createdAt])
 }
 
 model AuditLog {

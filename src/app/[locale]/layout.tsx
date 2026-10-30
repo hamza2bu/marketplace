@@ -30,14 +30,20 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+  const t = await getTranslations("nav");
 
   return (
     <html lang={locale} dir={directionOf(locale)}>
       <body className="min-h-dvh antialiased">
         <NextIntlClientProvider>
           <SessionProvider>
+            <a href="#content" className="sr-only rounded-md bg-brand px-4 py-2 text-brand-foreground focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-50">
+              {t("skip")}
+            </a>
             <SiteHeader locale={locale} />
-            <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">{children}</main>
+            <main id="content" tabIndex={-1} className="mx-auto w-full max-w-6xl px-4 py-6 outline-none sm:py-8">
+              {children}
+            </main>
             <SiteFooter />
           </SessionProvider>
         </NextIntlClientProvider>

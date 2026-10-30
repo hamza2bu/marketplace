@@ -44,6 +44,7 @@ export default async function AdminReviewsPage({ params, searchParams }: PagePro
                 <span className="rounded-full bg-surface px-2 py-0.5 text-xs">{t(`status.${r.status}`)}</span>
               </div>
               <Stars rating={r.rating} label={productT("starsOutOf", { rating: r.rating })} />
+              {r.flaggedAt && <p className="rounded bg-danger/10 px-2 py-1 text-sm text-danger">{t("flagged", { reason: r.flagReason ?? "" })}</p>}
               {r.title && <p className="font-semibold">{r.title}</p>}
               <p className="text-sm">{r.body}</p>
               <p className="text-xs text-muted">
@@ -51,7 +52,7 @@ export default async function AdminReviewsPage({ params, searchParams }: PagePro
               </p>
               <ActionForm action={moderateReviewAction} errors="admin.common" className="flex flex-wrap gap-2 text-sm">
                 <input type="hidden" name="reviewId" value={r.id} />
-                {r.status !== "VISIBLE" && (
+                {(r.status !== "VISIBLE" || r.flaggedAt) && (
                   <button name="decision" value="show" className="rounded-md border border-border px-3 py-1">
                     {t("show")}
                   </button>

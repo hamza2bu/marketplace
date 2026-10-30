@@ -40,6 +40,12 @@
   --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans Hebrew", "Noto Sans Arabic", Arial, sans-serif;
 }
 
+/* Visible keyboard focus everywhere, in the brand color. */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

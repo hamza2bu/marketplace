@@ -17,7 +17,7 @@ export default async function SellerLayout({ children }: LayoutProps<"/[locale]/
     sellerActionCounts(user.shop.id),
   ]);
   const labels = Object.fromEntries(
-    (["dashboard", "products", "discounts", "orders", "returns", "earnings", "settings"] as const).map((k) => [k, t(k)]),
+    (["dashboard", "products", "discounts", "orders", "returns", "reviews", "earnings", "settings"] as const).map((k) => [k, t(k)]),
   );
 
   return (

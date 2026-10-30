@@ -6,6 +6,7 @@ import { getPlatformSettings } from "@/server/settings";
 import { activeProvider } from "@/server/payments";
 import { cancelUnpaidOrder, refundSubOrder, RefundError } from "@/server/payments/service";
 import { generateOrderNumber, returnWindow } from "@/lib/order-status";
+import { queueEmail } from "@/server/email";
 import { resolveCommissionBps, splitOrder, type SplitLine } from "@/lib/pricing";
 import { absoluteUrl } from "@/lib/site";
 import type { CurrentUser } from "@/server/auth/guards";
@@ -228,7 +229,7 @@ function findCustomerOrder(userId: string, number: string) {
         orderBy: { createdAt: "asc" },
         include: {
           shop: { select: { name: true, slug: true } },
-          items: { include: { review: { select: { id: true } } } },
+          items: { include: { review: { select: { id: true, rating: true, title: true, body: true } } } },
           events: { orderBy: { createdAt: "asc" } },
           returnRequests: { orderBy: { createdAt: "desc" } },
           refunds: { where: { status: "SUCCEEDED" }, select: { amountMinor: true, createdAt: true } },
@@ -292,9 +293,7 @@ export async function requestReturn(
       data: { subOrderId: subOrder.id, reason, items: subOrder.items.map((i) => ({ orderItemId: i.id, quantity: i.quantity })) },
     });
     await tx.orderEvent.create({ data: { subOrderId: subOrder.id, status: "RETURN_REQUESTED", note: reason, actorId: userId } });
-    await tx.emailLog.create({
-      data: { to: subOrder.shop.contactEmail, userId: subOrder.shop.ownerId, template: "seller-return-requested", payload: { subOrderId: subOrder.id }, status: "queued" },
-    });
+    await queueEmail(tx, { to: subOrder.shop.contactEmail, userId: subOrder.shop.ownerId, template: "seller-return-requested", payload: { subOrderId: subOrder.id } });
   });
   return { ok: true };
 }

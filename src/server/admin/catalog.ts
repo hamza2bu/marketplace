@@ -82,7 +82,7 @@ export async function moderateProduct(adminId: string, productId: string, decisi
   await db.product.update({ where: { id: productId }, data });
   await audit(db, adminId, `product.${decision.action}`, "Product", productId, decision.action === "reject" ? { note: decision.note } : {});
   if (decision.action === "reject" || decision.action === "approve") {
-    await queueEmail(db, product.shop.contactEmail, product.shop.ownerId, `product-${decision.action}ed`, {
+    await queueEmail(db, product.shop.contactEmail, product.shop.ownerId, decision.action === "reject" ? "product-rejected" : "product-approved", {
       title: product.title,
       note: decision.action === "reject" ? decision.note : null,
     });
@@ -95,12 +95,14 @@ export async function moderateProduct(adminId: string, productId: string, decisi
 
 export async function listReviewsForAdmin(opts: { status?: ReviewStatus; page: number; pageSize?: number }) {
   const pageSize = opts.pageSize ?? 25;
-  const where: Prisma.ReviewWhereInput = opts.status ? { status: opts.status } : {};
+  // "Flagged" means reported by shoppers and not yet decided (still visible).
+  const where: Prisma.ReviewWhereInput =
+    opts.status === "FLAGGED" ? { flaggedAt: { not: null }, status: "VISIBLE" } : opts.status ? { status: opts.status } : {};
   const [reviews, total] = await Promise.all([
     db.review.findMany({
       where,
-      // Flagged first: that's the moderation queue.
-      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+      // Reported ones first: that's the moderation queue.
+      orderBy: [{ flaggedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
       skip: (opts.page - 1) * pageSize,
       take: pageSize,
       include: { product: { select: { title: true, slug: true } }, user: { select: { email: true, name: true } } },
@@ -114,7 +116,8 @@ export async function moderateReview(adminId: string, reviewId: string, action: 
   const review = await db.review.findUnique({ where: { id: reviewId }, select: { id: true, productId: true, product: { select: { slug: true } } } });
   if (!review) return { ok: false as const };
   if (action === "delete") await db.review.delete({ where: { id: reviewId } });
-  else await db.review.update({ where: { id: reviewId }, data: { status: action === "show" ? "VISIBLE" : "HIDDEN" } });
+  // Either decision closes the report.
+  else await db.review.update({ where: { id: reviewId }, data: { status: action === "show" ? "VISIBLE" : "HIDDEN", flaggedAt: null } });
   await audit(db, adminId, `review.${action}`, "Review", reviewId);
   await recomputeRatings(review.productId);
   revalidateProductPages([review.product.slug]);

@@ -6,6 +6,7 @@ import { SELLER_TRANSITIONS } from "@/lib/order-status";
 import { getPlatformSettings } from "@/server/settings";
 import { refundSubOrder, RefundError, syncOrderStatus } from "@/server/payments/service";
 import { addDisputeMessage } from "@/server/admin/orders";
+import { queueEmail } from "@/server/email";
 
 export type SellerOrderError = "not_found" | "not_allowed" | "refund_failed" | "invalid_amount";
 
@@ -71,15 +72,7 @@ async function notifyCustomer(tx: Prisma.TransactionClient, subOrderId: string, 
     where: { id: subOrderId },
     select: { order: { select: { number: true, customer: { select: { id: true, email: true } } } } },
   });
-  await tx.emailLog.create({
-    data: {
-      to: sub.order.customer.email,
-      userId: sub.order.customer.id,
-      template,
-      payload: { orderNumber: sub.order.number, subOrderId, ...extra },
-      status: "queued",
-    },
-  });
+  await queueEmail(tx, { to: sub.order.customer.email, userId: sub.order.customer.id, template, payload: { orderNumber: sub.order.number, subOrderId, ...extra } });
 }
 
 /**

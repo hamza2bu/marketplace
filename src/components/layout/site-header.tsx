@@ -38,6 +38,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
               seller: t("seller"),
               admin: t("admin"),
               orders: t("orders"),
+              wishlist: t("wishlist"),
               menu: t("menu"),
             }}
           />

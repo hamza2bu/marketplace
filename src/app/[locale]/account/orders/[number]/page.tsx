@@ -10,6 +10,7 @@ import { isTestProviderEnabled } from "@/server/payments";
 import { TEST_PROVIDER_ID } from "@/server/payments/providers/test-provider";
 import { CancelPendingOrderButton, CancelSubOrderButton, ReportProblemForm, ReturnRequestForm } from "../order-actions";
 import { DisputeThread } from "@/components/admin/dispute-thread";
+import { ReviewForm } from "@/components/reviews/review-form";
 
 export const metadata: Metadata = { robots: { index: false } };
 
@@ -86,7 +87,10 @@ export default async function OrderDetailPage({ params }: PageProps<"/[locale]/a
                           {Object.values(item.attributes as Record<string, string>).join(" · ")} × {item.quantity}
                         </p>
                       </div>
-                      <p>{money(item.lineTotalMinor)}</p>
+                      <div className="space-y-1 text-end">
+                        <p>{money(item.lineTotalMinor)}</p>
+                        {["DELIVERED", "RETURN_REQUESTED", "RETURNED"].includes(sub.status) && <ReviewForm orderItemId={item.id} existing={item.review} />}
+                      </div>
                     </li>
                   ))}
                 </ul>

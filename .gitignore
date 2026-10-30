@@ -46,3 +46,8 @@ next-env.d.ts
 
 # local image uploads (development)
 /storage
+
+# Playwright
+/test-results
+/playwright-report
+/tests/e2e/.auth

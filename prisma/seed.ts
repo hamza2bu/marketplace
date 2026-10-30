@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, type Role } from "../src/generated/prisma/client";
 import { expandOptions } from "../src/lib/variants";
 import { categories, products, shops, type SeedProduct } from "./seed-data";
+import { seedHistory } from "./seed-history";
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 
@@ -59,21 +60,22 @@ async function seedProduct(p: SeedProduct, index: number, shopId: string, catego
     create: { ...data, slug: p.slug },
   });
 
-  // Re-create children so re-running the seed converges on seed-data.ts.
-  await db.productImage.deleteMany({ where: { productId: product.id } });
-  await db.productVariant.deleteMany({ where: { productId: product.id } });
-
-  await db.productVariant.createMany({
-    data: variants.map((attributes, i) => ({
-      productId: product.id,
-      sku: `${p.slug}-${i + 1}`.toUpperCase(),
+  // Converge on seed-data.ts while keeping variant ids stable (by SKU), so
+  // re-seeding doesn't break carts, orders or cached product pages.
+  const skus = variants.map((_, i) => `${p.slug}-${i + 1}`.toUpperCase());
+  await db.productVariant.deleteMany({ where: { productId: product.id, sku: { notIn: skus }, orderItems: { none: {} } } });
+  for (const [i, attributes] of variants.entries()) {
+    const fields = {
       attributes,
       priceMinor: prices[i],
       compareAtMinor: p.compareAt ?? null,
       stock: 5 + ((index * 7 + i * 3) % 40),
       isDefault: i === 0,
-    })),
-  });
+      isActive: true,
+    };
+    await db.productVariant.upsert({ where: { sku: skus[i] }, update: { ...fields, productId: product.id }, create: { ...fields, sku: skus[i], productId: product.id } });
+  }
+  await db.productImage.deleteMany({ where: { productId: product.id } });
   await db.productImage.createMany({
     data: [1, 2, 3].map((n, position) => ({
       productId: product.id,
@@ -157,8 +159,11 @@ async function main() {
     ],
   });
 
+  await seedHistory(db, passwordHash);
+
   const counts = await Promise.all([db.user.count(), db.shop.count(), db.category.count(), db.product.count(), db.productVariant.count()]);
-  console.log(`Seeded: ${counts[0]} users, ${counts[1]} shops, ${counts[2]} categories, ${counts[3]} products, ${counts[4]} variants`);
+  const [orders, reviews] = await Promise.all([db.order.count({ where: { number: { startsWith: "SEED-" } } }), db.review.count()]);
+  console.log(`Seeded: ${counts[0]} users, ${counts[1]} shops, ${counts[2]} categories, ${counts[3]} products, ${counts[4]} variants, ${orders} past orders, ${reviews} reviews`);
 }
 
 main()

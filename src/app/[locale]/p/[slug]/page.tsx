@@ -9,6 +9,8 @@ import { Stars } from "@/components/catalog/stars";
 import { JsonLd } from "@/components/json-ld";
 import { Gallery } from "@/components/product/gallery";
 import { VariantPicker } from "@/components/product/variant-picker";
+import { WishlistButton } from "@/components/product/wishlist-button";
+import { ReportReview } from "@/components/reviews/report-review";
 import { ancestry } from "@/lib/category-tree";
 import { localized } from "@/lib/i18n-text";
 import { localeAlternates, snippet } from "@/lib/seo";
@@ -124,6 +126,7 @@ export default async function ProductPage({ params }: PageProps<"/[locale]/p/[sl
             </div>
 
             <VariantPicker variants={product.variants} />
+            <WishlistButton productId={product.id} />
           </div>
         </div>
       </div>
@@ -184,6 +187,7 @@ export default async function ProductPage({ params }: PageProps<"/[locale]/p/[sl
                       <p className="text-xs text-muted">
                         {review.author} · {t("verifiedBuyer")} · {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(review.createdAt)}
                       </p>
+                      <ReportReview reviewId={review.id} />
                       {review.sellerReply && (
                         <div className="mt-2 rounded-md bg-surface p-3 text-sm">
                           <p className="font-medium">{t("sellerReply")}</p>

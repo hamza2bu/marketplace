@@ -6,6 +6,7 @@ import { deriveOrderStatus } from "@/lib/order-status";
 import { splitRefund } from "@/lib/pricing";
 import { providerById } from "./index";
 import type { PaymentWebhookEvent } from "./types";
+import { queueEmail as queue } from "@/server/email";
 
 type Tx = Prisma.TransactionClient;
 
@@ -37,9 +38,8 @@ async function addEvent(tx: Tx, subOrderIds: string[], status: SubOrderStatus, n
   await tx.orderEvent.createMany({ data: subOrderIds.map((subOrderId) => ({ subOrderId, status, note, actorId })) });
 }
 
-/** Records an email to send; delivery is wired up in Phase 6. */
-async function queueEmail(tx: Tx, to: string, userId: string | null, template: string, payload: Prisma.InputJsonValue) {
-  await tx.emailLog.create({ data: { to, userId, template, payload, status: "queued" } });
+async function queueEmail(tx: Tx, to: string, userId: string | null, template: string, payload: Prisma.InputJsonObject) {
+  await queue(tx, { to, userId, template, payload });
 }
 
 /**

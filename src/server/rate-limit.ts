@@ -5,7 +5,8 @@ import { createRateLimiter, type RateLimitResult } from "@/lib/rate-limiter";
 // In-memory limiters: fine for one server process. Swap the store for
 // Redis/Upstash before running more than one instance.
 const limiters = {
-  auth: createRateLimiter({ limit: 10, windowMs: 15 * 60 * 1000 }),
+  // AUTH_RATE_LIMIT exists for the end-to-end tests, which sign in many times from one IP.
+  auth: createRateLimiter({ limit: Number(process.env.AUTH_RATE_LIMIT) || 10, windowMs: 15 * 60 * 1000 }),
   cart: createRateLimiter({ limit: 60, windowMs: 60 * 1000 }),
   checkout: createRateLimiter({ limit: 10, windowMs: 60 * 1000 }),
   account: createRateLimiter({ limit: 30, windowMs: 60 * 1000 }),

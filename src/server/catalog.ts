@@ -100,6 +100,15 @@ async function cards(where: Prisma.ProductWhereInput, orderBy: Prisma.ProductOrd
   return rows.map((row) => toCard(row, now));
 }
 
+/** Cards for these products, in the given order (hidden or removed ones are skipped). */
+export async function getProductCards(ids: string[]) {
+  if (ids.length === 0) return [];
+  const now = new Date();
+  const rows = await db.product.findMany({ where: { AND: [VISIBLE, { id: { in: ids } }] }, select: cardSelect(now) });
+  const byId = new Map(rows.map((r) => [r.id, toCard(r, now)]));
+  return ids.map((id) => byId.get(id)).filter((c) => c !== undefined);
+}
+
 // ───────────────────────── Home page ─────────────────────────
 
 // Kept up to date by refreshProductPricing (src/server/discounts.ts).

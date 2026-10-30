@@ -20,6 +20,11 @@ export default async function SignInPage({ params, searchParams }: PageProps<"/[
     <div className="mx-auto max-w-sm space-y-6">
       <h1 className="text-2xl font-bold">{t("signInTitle")}</h1>
       <SignInForm callbackUrl={typeof callbackUrl === "string" ? callbackUrl : undefined} />
+      <p className="text-sm">
+        <Link href="/forgot-password" className="text-brand underline">
+          {t("forgot")}
+        </Link>
+      </p>
       <p className="text-sm text-muted">
         {t("noAccount")}{" "}
         <Link href="/sign-up" className="font-medium text-brand">

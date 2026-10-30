@@ -21,7 +21,9 @@
     "cart": "Cart",
     "cartCount": "Cart, {count, plural, =0 {empty} one {# item} other {# items}}",
     "orders": "My orders",
-    "sell": "Sell on Shuk"
+    "sell": "Sell on Shuk",
+    "skip": "Skip to content",
+    "wishlist": "Saved items"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -34,7 +36,19 @@
     "submitSignUp": "Create account",
     "noAccount": "New here?",
     "haveAccount": "Already have an account?",
-    "pending": "Please wait…"
+    "pending": "Please wait…",
+    "forgot": "Forgot your password?",
+    "forgotTitle": "Reset your password",
+    "forgotIntro": "Enter your email and we'll send you a link to choose a new password.",
+    "sendLink": "Send reset link",
+    "linkSent": "If an account exists for that email, we've sent a link. Check your inbox.",
+    "resetTitle": "Choose a new password",
+    "newPassword": "New password",
+    "savePassword": "Save password",
+    "resetDone": "Your password was changed. You can sign in now.",
+    "resetInvalid": "This link is invalid or has expired. Ask for a new one.",
+    "verified": "Your email is confirmed. Thank you!",
+    "verifyInvalid": "This confirmation link is invalid or has expired."
   },
   "errors": {
     "required": "This field is required.",
@@ -60,7 +74,11 @@
     "addresses": "Addresses",
     "wishlist": "Wishlist",
     "soon": "Coming in a later phase",
-    "manage": "Manage"
+    "manage": "Manage",
+    "unverified": "Your email isn't confirmed yet.",
+    "resendVerification": "Send the confirmation email again",
+    "verificationSent": "Sent. Check your inbox.",
+    "wishlistLink": "Saved items"
   },
   "roles": {
     "CUSTOMER": "Customer",
@@ -81,7 +99,8 @@
       "returns": "Returns",
       "earnings": "Earnings",
       "settings": "Settings",
-      "storefront": "View my shop"
+      "storefront": "View my shop",
+      "reviews": "Reviews"
     },
     "dashboard": {
       "last30": "Last 30 days",
@@ -316,6 +335,13 @@
       "updateBank": "Replace bank account",
       "business": "Business details",
       "businessHint": "To change your business details, contact support."
+    },
+    "reviews": {
+      "title": "Customer reviews",
+      "empty": "No reviews yet.",
+      "reply": "Public reply",
+      "saveReply": "Save reply",
+      "average": "Average {rating} from {count} reviews"
     }
   },
   "shopStatus": {
@@ -434,7 +460,8 @@
         "VISIBLE": "Visible",
         "HIDDEN": "Hidden",
         "FLAGGED": "Flagged"
-      }
+      },
+      "flagged": "Reported: {reason}"
     },
     "orders": {
       "title": "All orders",
@@ -920,5 +947,118 @@
     "csvUnknownCategory": "Unknown category \"{detail}\".",
     "csvNoFile": "Choose a CSV file.",
     "csvSavedAsDraft": "Saved as a draft: add images to publish it."
+  },
+  "emails": {
+    "footer": "You're receiving this email because of activity on your {brand} account.",
+    "viewOrder": "View your order",
+    "openDashboard": "Open your dashboard",
+    "order-confirmation": {
+      "subject": "Order {orderNumber} is confirmed",
+      "body": "Thank you! We've received your payment. Each shop will ship its part of the order and we'll email you the tracking details."
+    },
+    "seller-new-order": {
+      "subject": "New order {orderNumber}",
+      "body": "You have a new paid order. Please prepare it and add the tracking number when you ship."
+    },
+    "order-shipped": {
+      "subject": "Part of order {orderNumber} has shipped",
+      "body": "Good news: it's on its way. Tracking number: {trackingNumber}."
+    },
+    "order-delivered": {
+      "subject": "Delivered: order {orderNumber}",
+      "body": "Your package was delivered. Enjoy! If you have a moment, rate what you bought: it helps other shoppers and the shop."
+    },
+    "refund-issued": {
+      "subject": "Refund for order {orderNumber}",
+      "body": "We've refunded {amount} to your original payment method. It can take a few business days to appear."
+    },
+    "seller-return-requested": {
+      "subject": "Return requested",
+      "body": "A customer asked to return an item. Please review the request in your dashboard."
+    },
+    "return-approved": {
+      "subject": "Your return for order {orderNumber} was approved",
+      "body": "Please send the item back to the shop. You'll be refunded once it arrives."
+    },
+    "return-rejected": {
+      "subject": "About your return for order {orderNumber}",
+      "body": "The shop couldn't accept this return. You can see their note on your order page, or report a problem if you disagree."
+    },
+    "shop-approved": {
+      "subject": "Your shop is live!",
+      "body": "Your shop was approved. Your published products are now visible to customers."
+    },
+    "shop-suspended": {
+      "subject": "Your shop has been suspended",
+      "body": "Your shop is hidden from customers for now. Reason: {reason}. You can still ship existing orders."
+    },
+    "shop-removed": {
+      "subject": "About your shop application",
+      "body": "Your shop won't be listed on the marketplace. Reason: {reason}."
+    },
+    "product-approved": {
+      "subject": "Approved: {title}",
+      "body": "Your product was approved and is visible in your shop."
+    },
+    "product-rejected": {
+      "subject": "Needs changes: {title}",
+      "body": "Your product was taken down until it's fixed. Note from our team: {note}"
+    },
+    "dispute-opened": {
+      "subject": "A customer reported a problem with order {orderNumber}",
+      "body": "Please reply on the order page so we can help resolve it."
+    },
+    "dispute-resolved": {
+      "subject": "Your problem report has been resolved",
+      "body": "Our decision: {resolution}"
+    },
+    "payout-sent": {
+      "subject": "We've sent you {amount}",
+      "body": "A payout of {amount} was transferred to your bank account (reference {reference})."
+    },
+    "password-reset": {
+      "subject": "Reset your password",
+      "body": "Someone asked to reset the password for this account. The link works for one hour. If it wasn't you, you can ignore this email.",
+      "action": "Choose a new password"
+    },
+    "verify-email": {
+      "subject": "Confirm your email",
+      "body": "Welcome! Please confirm this is your email address.",
+      "action": "Confirm email"
+    }
+  },
+  "wishlist": {
+    "title": "Saved items",
+    "empty": "Nothing saved yet. Tap the heart on a product to save it.",
+    "add": "Save for later",
+    "remove": "Remove from saved items",
+    "saved": "Saved"
+  },
+  "reviews": {
+    "write": "Write a review",
+    "edit": "Edit your review",
+    "rating": "Your rating",
+    "stars": "{count, plural, one {# star} other {# stars}}",
+    "title": "Title (optional)",
+    "body": "Your review",
+    "submit": "Publish review",
+    "delete": "Delete review",
+    "thanks": "Thanks for your review!",
+    "report": "Report",
+    "reportReason": "What's wrong with this review?",
+    "reported": "Thanks, our team will take a look.",
+    "signInToReport": "Sign in to report",
+    "errors": {
+      "not_found": "This review can't be found.",
+      "not_allowed": "You can review items once they're delivered.",
+      "invalid": "Choose a rating and write at least 10 characters.",
+      "own": "You can't report your own review.",
+      "rateLimited": "Too many actions. Wait a moment."
+    }
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "body": "We couldn't load this page. Please try again in a moment.",
+    "retry": "Try again"
   }
 }

@@ -2,7 +2,7 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 
-const ITEMS = ["", "/products", "/discounts", "/orders", "/returns", "/earnings", "/settings"] as const;
+const ITEMS = ["", "/products", "/discounts", "/orders", "/returns", "/reviews", "/earnings", "/settings"] as const;
 
 /** Seller area navigation: a scrollable tab bar on mobile, a sidebar on desktop. */
 export function SellerNav({ labels, badges }: { labels: Record<string, string>; badges: Record<string, number> }) {

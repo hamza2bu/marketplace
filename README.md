@@ -13,7 +13,7 @@ cp .env.example .env          # then set AUTH_SECRET: npx auth secret
 docker compose up -d          # skip if you already run Postgres locally
 npm install                   # also generates the Prisma client
 npm run db:migrate            # create the tables
-npm run db:seed               # sample categories, 3 shops, 30 products
+npm run db:seed               # categories, 3 shops, 30 products, 36 past orders, reviews
 npm run dev                   # http://localhost:3000 → redirects to /he
 ```
 
@@ -26,7 +26,7 @@ Every account uses the password in `SEED_PASSWORD` (default `Password123!`).
 | Email | Role |
 | --- | --- |
 | `admin@example.com` | Admin |
-| `customer@example.com` | Customer |
+| `customer@example.com` | Customer (also `noa@`, `ahmad@`, `yael@`, `mohammad@` with past orders) |
 | `seller.tech@example.com` | Seller — TechZone (electronics) |
 | `seller.home@example.com` | Seller — Bayit Design (home & kitchen) |
 | `seller.fashion@example.com` | Seller — Urban Wear (fashion) |
@@ -37,7 +37,8 @@ Every account uses the password in `SEED_PASSWORD` (default `Password123!`).
 | --- | --- |
 | `npm run dev` / `build` / `start` | Next.js |
 | `npm test` | Unit tests (Vitest) |
-| `npm run test:integration` | Payment/order tests against the database (needs a migrated, seeded DB) |
+| `npm run test:integration` | Tests against the database: payments, sellers, admin, reviews, email (needs a migrated, seeded DB) |
+| `npm run test:e2e` | Browser tests of the main journeys against a production build (run `npm run build` first) |
 | `npm run typecheck` | Generate route types and run `tsc` |
 | `npm run lint` | ESLint |
 | `npm run db:migrate` | Create/apply migrations in development |
@@ -64,6 +65,8 @@ src/i18n/, src/messages/   routing and translations
 src/proxy.ts               locale routing + sign-in gate for protected areas
 tests/unit/                Vitest unit tests
 tests/integration/         Vitest tests against the database
+tests/e2e/                 Playwright browser tests
+.github/workflows/ci.yml   CI: lint, types, unit, integration, build, e2e
 ```
 
 ### Conventions
@@ -137,3 +140,36 @@ Sign in as `admin@example.com` and open `/admin`. Every admin page and action re
 - **Banners**: home page banners with an image, titles in three languages, a link inside the site, and an optional schedule.
 - **Settings**: default commission, VAT, shipping per seller and the free-shipping threshold, return window and payment window. Changes apply to new orders only.
 - **Users**: search, suspend and reactivate accounts (not admins). A suspended user's session ends at its next check (within a minute).
+
+## Reviews and saved items
+
+- **Reviews** are for verified buyers only: once a shipment is delivered, each item on the order page gets a "Write a review" form (1–5 stars, title, text), which can be edited or deleted later. Ratings for the product and the shop are recalculated on every change.
+- Shoppers can **report** a review. Reported reviews stay visible until an admin decides (`/admin/reviews`, "Flagged"), so a report alone can't hide someone's review.
+- **Sellers** answer reviews publicly from `/seller/reviews`.
+- **Saved items**: the heart on a product page saves it to `/account/wishlist`.
+
+## Accounts and email
+
+- **Email confirmation**: new accounts get a confirmation link (24 hours). Unconfirmed accounts work normally, with a reminder on the account page.
+- **Password reset** at `/forgot-password`: the link works once, for one hour. The response is the same whether or not the email has an account. Changing the password signs out every other session (within a minute).
+- Tokens are stored as SHA-256 hashes, and links are wiped from the email log once sent.
+- **Emails** (order confirmed, new order for the seller, shipped with tracking, delivered with a review prompt, refunds, returns, disputes, shop and product decisions, payouts) are queued in the same transaction as the change, sent right after the response, and retried by the cron job (up to 5 attempts). They're written in the recipient's language (the one they last signed in with) and laid out right-to-left for Hebrew and Arabic. Set `RESEND_API_KEY` and `EMAIL_FROM` to send through [Resend](https://resend.com); without them, emails are printed to the server log.
+
+## Security summary
+
+- Passwords: bcrypt (cost 12). Sessions: signed JWT cookies; role and status re-checked against the database on every protected page and action.
+- Rate limits on sign-in, sign-up, password reset, cart, checkout and account actions.
+- All input validated with Zod on the server; SQL is parameterized; user content is escaped (React, emails, JSON-LD, CSV export).
+- No card data is stored. Payment webhooks are signature-checked and applied once. Sellers' bank details are encrypted (AES-256-GCM).
+- Uploads: type checked by content, 5 MB limit, only from this site or our Cloudinary account.
+- Headers: Content-Security-Policy, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy, and HSTS in production.
+- Every admin action is in the activity log.
+
+## Going to production
+
+1. **Database**: managed PostgreSQL 16; run `npm run db:deploy` on each release. Don't run the seed in production.
+2. **Environment** (see `.env.example`): `DATABASE_URL`, `AUTH_SECRET`, `AUTH_URL` and `NEXT_PUBLIC_SITE_URL` (your https domain), `DATA_ENCRYPTION_KEY` (keep a backup: without it bank details can't be read), `PAYMENT_WEBHOOK_SECRET`, `CRON_SECRET`, Cloudinary keys, `RESEND_API_KEY` + `EMAIL_FROM` (a domain verified in Resend).
+3. **Payments**: add the adapter for your provider (see "Payment providers") and set `PAYMENT_PROVIDER`. The test provider is off in production.
+4. **Cron**: call `/api/cron/maintenance` every 5 minutes with the `CRON_SECRET` bearer token.
+5. **More than one server instance**: move the rate limiter's store to Redis (`src/server/rate-limit.ts`).
+6. **First admin**: create an account, then set its `role` to `ADMIN` in the database.

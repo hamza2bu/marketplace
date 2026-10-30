@@ -20,7 +20,7 @@ export default async function AdminOverviewPage({ params }: PageProps<"/[locale]
     db.shop.count({ where: { status: "PENDING" } }),
     db.product.count({ where: { status: "PENDING_REVIEW" } }),
     db.dispute.count({ where: { status: { not: "RESOLVED" } } }),
-    db.review.count({ where: { status: "FLAGGED" } }),
+    db.review.count({ where: { flaggedAt: { not: null }, status: "VISIBLE" } }),
     payableShops(),
   ]);
   const fmt = (n: number) => formatMoney(n, locale);

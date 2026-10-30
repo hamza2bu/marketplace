@@ -6,6 +6,7 @@ import { parseMoney } from "@/lib/money";
 import { shipmentSchema } from "@/lib/validation/seller";
 import { sellerAction } from "@/server/seller/context";
 import { advanceSubOrder, cancelBySeller, decideReturn, sellerDisputeReply } from "@/server/seller/orders";
+import { replyToReview } from "@/server/reviews";
 
 export type SellerOrderState = { ok?: boolean; error?: string; fieldErrors?: Record<string, string> };
 
@@ -71,4 +72,14 @@ export async function returnDecisionAction(_prev: SellerOrderState, formData: Fo
   }
   if (result.ok) refresh();
   return result;
+}
+
+export async function reviewReplyAction(_prev: SellerOrderState, formData: FormData): Promise<SellerOrderState> {
+  const { shop, limited } = await sellerAction(formData.get("locale"));
+  if (limited) return { error: "rateLimited" };
+  const reply = z.string().trim().max(1000).safeParse(formData.get("reply") ?? "");
+  if (!reply.success) return { error: "not_allowed" };
+  const result = await replyToReview(shop.id, String(formData.get("reviewId") ?? ""), reply.data);
+  if (result.ok) refresh();
+  return result.ok ? { ok: true } : { error: "not_found" };
 }

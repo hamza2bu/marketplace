@@ -3,7 +3,7 @@
 import { signOut, useSession } from "next-auth/react";
 import { Link } from "@/i18n/navigation";
 
-type Labels = Record<"signIn" | "signUp" | "signOut" | "account" | "orders" | "seller" | "admin" | "menu", string>;
+type Labels = Record<"signIn" | "signUp" | "signOut" | "account" | "orders" | "wishlist" | "seller" | "admin" | "menu", string>;
 
 export function UserMenu({ locale, labels }: { locale: string; labels: Labels }) {
   const { data: session, status } = useSession();
@@ -36,6 +36,11 @@ export function UserMenu({ locale, labels }: { locale: string; labels: Labels })
         <li>
           <Link href="/account/orders" className="block rounded px-2 py-1.5 hover:bg-surface">
             {labels.orders}
+          </Link>
+        </li>
+        <li>
+          <Link href="/account/wishlist" className="block rounded px-2 py-1.5 hover:bg-surface">
+            {labels.wishlist}
           </Link>
         </li>
         {role === "SELLER" && (

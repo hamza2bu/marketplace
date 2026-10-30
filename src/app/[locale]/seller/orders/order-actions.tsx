@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useErrorText } from "@/components/ui/use-error-text";
 import { CARRIERS } from "@/lib/validation/seller";
-import { advanceOrderAction, cancelOrderAction, disputeReplyAction, returnDecisionAction, type SellerOrderState } from "./actions";
+import { advanceOrderAction, cancelOrderAction, disputeReplyAction, returnDecisionAction, reviewReplyAction, type SellerOrderState } from "./actions";
 
 const input = "w-full rounded-md border border-border bg-background px-2 py-1.5 text-base";
 
@@ -164,5 +164,27 @@ export function ReturnDecision({ returnId, status, maxLabel }: { returnId: strin
       )}
       <Feedback state={state} />
     </div>
+  );
+}
+
+export function ReviewReplyForm({ reviewId, reply }: { reviewId: string; reply: string | null }) {
+  const t = useTranslations("seller.reviews");
+  const settings = useTranslations("seller.settings");
+  const locale = useLocale();
+  const [state, action, pending] = useActionState<SellerOrderState, FormData>(reviewReplyAction, {});
+  return (
+    <form action={action} className="space-y-2">
+      <input type="hidden" name="locale" value={locale} />
+      <input type="hidden" name="reviewId" value={reviewId} />
+      <label className="block text-sm">
+        <span className="mb-1 block font-medium">{t("reply")}</span>
+        <textarea name="reply" rows={2} maxLength={1000} defaultValue={reply ?? ""} className={input} />
+      </label>
+      <button disabled={pending} className="rounded-md border border-border px-3 py-1.5 text-sm disabled:opacity-60">
+        {t("saveReply")}
+      </button>
+      {state.ok && <span role="status" className="ms-2 text-sm text-brand">{settings("saved")}</span>}
+      <Feedback state={state} />
+    </form>
   );
 }

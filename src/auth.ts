@@ -39,9 +39,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       const user = await db.user.findUnique({
         where: { id: token.id },
-        select: { role: true, status: true },
+        select: { role: true, status: true, passwordChangedAt: true },
       });
       if (!user || user.status !== "ACTIVE") return null;
+      // A password reset signs out every session issued before it.
+      // (1s margin: iat is in whole seconds.)
+      if (user.passwordChangedAt && ((token.iat ?? 0) + 1) * 1000 < user.passwordChangedAt.getTime()) return null;
       token.role = user.role;
       token.refreshedAt = Date.now();
       return token;
